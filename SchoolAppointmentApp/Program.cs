@@ -472,7 +472,7 @@ app.MapPost("/register", async (
     Teacher teacher = new()
     {
       TeacherId = data.Id,
-      Points = 0,
+      Points = default,
       User = new()
       {
         Name = data.Name,
