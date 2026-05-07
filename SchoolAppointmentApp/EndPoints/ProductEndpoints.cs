@@ -27,7 +27,7 @@ public static class Products
       var id = user.FindFirstValue(ClaimTypes.NameIdentifier);
 
       // Validation of user
-      (bool auth, _) = await validator.IsResults<Teacher>(
+      (bool auth, _) = await validator.IsResults<SchoolPrincipal>(
         expectedRole: Roles.schoolPrincipal,
         user: user,
         ct: ct

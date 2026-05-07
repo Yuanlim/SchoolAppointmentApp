@@ -1,20 +1,17 @@
 using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using SchoolAppointmentApp.Data;
 using SchoolAppointmentApp.DataTypeObject;
 using SchoolAppointmentApp.EndPoints;
 using SchoolAppointmentApp.Entities;
 using SchoolAppointmentApp.FunctionalClasses;
-using SchoolAppointmentApp.Jwt;
 using System.Text.Json.Serialization;
-using static SchoolAppointmentApp.FunctionalClasses.BlockChecker;
 using Microsoft.Extensions.FileProviders;
+using SchoolAppointmentApp.Registrations;
+using SchoolAppointmentApp.Mapping;
 
 
 Console.WriteLine(new PasswordHasher<object>()
@@ -26,128 +23,20 @@ var connString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<MyAppDbContext>(opt =>
   opt.UseNpgsql(connString));
 
-// Register the Jwt options in IOptions so later can DI it in services, it anyone needs it
-builder.Services.AddOptions<JwtConfiguration>()
-                .Bind(builder.Configuration.GetSection("Jwt"))
-                .ValidateDataAnnotations()
-                .ValidateOnStart();
-
-// Transient, Scope, Singleton DI registration
-builder.Services.AddSingleton<JwtProvider>();
-builder.Services.AddSingleton<IPasswordHasher<object>, PasswordHasher<object>>();
-builder.Services.AddScoped<IDuplicateChecker, DuplicateChecker>();
-builder.Services.AddScoped<IProductListClasses, ProductListClasses>();
-builder.Services.AddScoped<IOrderItemList, OrderItemListClasses>();
-builder.Services.AddScoped<IOrderStatus, GetStatus>();
-builder.Services.AddScoped<IGetCart, GetCartHandler>();
-builder.Services.AddScoped<IGetCartItem, GetCartItemHandler>();
-builder.Services.AddScoped<IGetUserId, GetUserId>();
-builder.Services.AddScoped<IGetUser, GetUserService>();
-builder.Services.AddScoped<IGetPost, GetPost>();
-builder.Services.AddScoped<IGetFriend, GetFriend>();
-builder.Services.AddScoped<IBlock, BlockChecker>();
-builder.Services.AddScoped<IRelationship, RelationHandler>();
-builder.Services.AddScoped<IProcessValidator, NullValidator>();
-builder.Services.AddScoped<UnAuthorizedValidator>();
-builder.Services.AddScoped<RegisterStartPolicies>();
-builder.Services.AddScoped<NullValidator>();
-builder.Services.AddTransient<EmailValidator>();
-builder.Services.AddTransient<NameValidator>();
-builder.Services.AddTransient<RoleValidator>();
-builder.Services.AddTransient<IErrorResults, ErrorResultHandler>();
-
-
-// Jwt Bearer
-// IF appsettings.json Jwt doesn't exist, get default obj.
-var Jwt = builder.Configuration.GetSection("Jwt").Get<JwtConfiguration>()
-          ?? throw new InvalidOperationException("JWT configuration missing");
-
-var SecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Jwt.SecretKey ?? ""));
-
+// Service DI Container
+builder.AddServiceToContainer();
 
 // CORS for frontend
-builder.Services.AddCors(options =>
-{
-  options.AddPolicy("FrontendCorsPolicy", policy =>
-  {
-    policy.WithOrigins(["http://localhost:3000", "http://localhost:3001"])
-          .AllowAnyHeader()
-          .AllowAnyMethod()
-          .AllowCredentials();
-  });
-});
+builder.AddCors();
 
+// Incoming request convert
+builder.AddConverter();
 
-// Treat passed in string able to convert to enum
-builder.Services.ConfigureHttpJsonOptions(options =>
-{
-  options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-});
-
-
-// Jwt validation
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme) // All Register as "Bearer" validation endpoints
-                .AddJwtBearer(o =>
-                {
-                  o.TokenValidationParameters = new TokenValidationParameters
-                  {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidateLifetime = true,
-                    ValidIssuer = Jwt.Issuer,
-                    ValidAudience = Jwt.Audience,
-                    IssuerSigningKey = SecurityKey,
-                    ClockSkew = TimeSpan.Zero,
-                    RoleClaimType = ClaimTypes.Role
-                  };
-                })
-                .AddCookie("Cookie", c =>
-                {
-                  c.Events.OnRedirectToLogin = ctx =>
-                  {
-                    ctx.Response.StatusCode = 401;
-                    return Task.CompletedTask;
-                  };
-                  c.Events.OnRedirectToAccessDenied = ctx =>
-                  {
-                    ctx.Response.StatusCode = 403;
-                    return Task.CompletedTask;
-                  };
-                  c.LoginPath = "/login";
-                  c.LogoutPath = "/logout";
-                  c.ExpireTimeSpan = TimeSpan.FromHours(8);
-                });
+// Set Auth type
+builder.AddAuthentication();
 
 // Endpoint role restriction setup
-builder.Services.AddAuthorization(options =>
-{
-  options.AddPolicy(
-      "AdminAllowed", policy => policy.RequireRole("admin")
-                                      .RequireClaim(ClaimTypes.NameIdentifier)
-  );
-  options.AddPolicy(
-      "TeacherAllowed", policy => policy.RequireRole("teacher")
-                                        .RequireClaim("TeacherId")
-  );
-  options.AddPolicy(
-      "StudentAllowed", policy => policy.RequireRole("student")
-                                        .RequireClaim("StudentId")
-  );
-  options.AddPolicy(
-      "PrincipalAllowed", policy => policy.RequireRole("schoolPrincipal")
-                                          .RequireClaim(ClaimTypes.NameIdentifier)
-  );
-  options.AddPolicy(
-      "TeacherOrStudentAllowed", policy => policy.RequireRole("student", "teacher")
-  );
-  options.AddPolicy(
-      "TeacherOrPrincipalAllowed", policy => policy.RequireRole("schoolPrincipal", "teacher")
-  );
-  options.AddPolicy(
-      "AllRoleAllowed", policy => policy.RequireRole("student", "teacher", "admin", "schoolPrincipal")
-  );
-});
+builder.AddAuthorization();
 
 var app = builder.Build();
 
@@ -170,7 +59,6 @@ app.MapPost("/login", async (
     HttpContext hc,
     IErrorResults errorHandler,
     IPasswordHasher<object> passwordHasher,
-    JwtProvider jwtProvider,
     LoginDto dto,
     MyAppDbContext dbContext,
     RoleValidator roleValidator
@@ -192,9 +80,8 @@ app.MapPost("/login", async (
     3. Verify the submitted password against the stored password hash;
 
     If Success:
-    1. Note the user identity in a claim and encrypted to a Jwt;
-    2. Using that claim to also register a new cookie;
-    3. Return the token to user as an Credential
+    1. Using that claim and store to a new cookie
+    2. The response body will tell browser or postman to set cookie
 
     If failed:
     1. Invalid input -> BadReq
@@ -259,9 +146,6 @@ app.MapPost("/login", async (
           new Claim(ClaimTypes.Role, "admin"),
         };
 
-    // Generate a signed JWT token containing the admin claims
-    var token = jwtProvider.Create(adminClaims);
-
     // User ClaimsPrincipal so that later when user post request to an api
     // Authorize -> We can access "who"
     claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(adminClaims, "Cookie"));
@@ -269,7 +153,10 @@ app.MapPost("/login", async (
     // Store user claims to a Cookie for later request
     await hc.SignInAsync("Cookie", claimsPrincipal);
 
-    return Results.Ok(token);
+    return Results.Ok(new
+    {
+      message = "login successful"
+    });
   }
 
   // Login as School principal
@@ -305,11 +192,12 @@ app.MapPost("/login", async (
 
     claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(principalClaims, "Cookie"));
 
-    var token = jwtProvider.Create(principalClaims);
-
     await hc.SignInAsync("Cookie", claimsPrincipal);
 
-    return Results.Ok(token);
+    return Results.Ok(new
+    {
+      message = "login successful"
+    });
   }
 
   // Teacher and student login
@@ -362,13 +250,14 @@ app.MapPost("/login", async (
     if (Role == Roles.teacher)
       claims.Add(new Claim("TeacherId", user.Teacher!.TeacherId!));
 
-    var token2 = jwtProvider.Create(claims);
-
     claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(claims, "Cookie"));
 
     await hc.SignInAsync("Cookie", claimsPrincipal);
 
-    return Results.Ok(token2);
+    return Results.Ok(new
+    {
+      message = "login successful"
+    });
   }
 
   return errorHandler.BadReqResult(
@@ -427,8 +316,7 @@ app.MapPost("/register", async (
   if (data.Role == Roles.student)
   {
 
-    var cls = await dbContext.SchoolClasses.AsNoTracking()
-                                            .SingleOrDefaultAsync(
+    var cls = await dbContext.SchoolClasses.FirstOrDefaultAsync(
                                               s => s.ClassName == dto.Class
                                             );
 
@@ -444,6 +332,7 @@ app.MapPost("/register", async (
     {
       StudentId = data.Id,
       ClassId = cls.ClassId,
+      SchoolClass = cls,
       User = new()
       {
         Name = data.Name,
@@ -456,23 +345,17 @@ app.MapPost("/register", async (
     await dbContext.Students.AddAsync(student);
     await dbContext.SaveChangesAsync();
 
-    StudentDto newStudent = new
-    (
-        StudentId: data.Id,
-        Name: data.Name,
-        ClassName: cls.ClassName,
-        PhoneNumber: dto.PhoneNumber ?? "",
-        Email: data.Email
+    return Results.Created(
+      $"/GetPerson/{student.StudentId}",
+      student.StudentToDto()
     );
-
-    return Results.Created($"/GetPerson/{student.StudentId}", newStudent);
   }
   else if (data.Role == Roles.teacher) // role is teacher 
   {
     Teacher teacher = new()
     {
       TeacherId = data.Id,
-      Points = default,
+      Points = 0,
       User = new()
       {
         Name = data.Name,
@@ -485,16 +368,10 @@ app.MapPost("/register", async (
     await dbContext.Teachers.AddAsync(teacher);
     await dbContext.SaveChangesAsync();
 
-    TeacherDto newTeacher = new
-    (
-      TeacherId: data.Id,
-      Name: data.Name,
-      PhoneNumber: dto.PhoneNumber ?? "",
-      Email: data.Email,
-      Points: default
+    return Results.Created(
+      $"/GetPerson/{teacher.TeacherId}",
+      teacher.TeacherToDto()
     );
-
-    return Results.Created($"/GetPerson/{teacher.TeacherId}", newTeacher);
   }
   else
     return errorHandler.BadReqResult(

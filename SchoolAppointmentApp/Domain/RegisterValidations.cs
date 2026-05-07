@@ -13,7 +13,7 @@ internal sealed class RegisterStartPolicies(
     /// 1. should be valid role.
     /// 2. email should be [word||number]@(gmail.com||nkust.edu.tw)
     /// 3. name must be more than 3 char, cant contain symbols or numbers.
-    /// 4. cant be existed email or id.
+    /// 4. cant be existed email or id or phoneNumber.
     /// </summary>
 
     private readonly EmailValidator _emailValidator = emailValidator;
@@ -31,7 +31,7 @@ internal sealed class RegisterStartPolicies(
         if (dto.Email is null || !_emailValidator.IsValid(dto.Email)) // Check format
             return (null, errorHandler.BadReqResult(
                 title: "Register email issues",
-                message: "We only supported @gmail and @nkust.edu.tw registration",
+                message: "We only supported @gmail.com and @nkust.edu.tw registration, and before @ must contain at least an alphabet or a number",
                 hc: hc,
                 user: default
             ));
@@ -73,10 +73,10 @@ internal sealed class RegisterStartPolicies(
             ));
 
         // Database validation
-        if (await _duplicateChecker.IsDuplicateAsync(Role, dto.Email, dto.Id)) // Check database if email or id existed
+        if (await _duplicateChecker.IsDuplicateAsync(Role.Value, dto.Email, dto.Id, dto.PhoneNumber)) // Check database if email or id or phoneNumber existed
             return (null, errorHandler.ConflictResult(
                 title: "Register duplicate issues",
-                message: "Email or Student/TeacherId has been register",
+                message: "Phone number or Email or StudentId / TeacherId has been register",
                 hc: hc
             ));
 

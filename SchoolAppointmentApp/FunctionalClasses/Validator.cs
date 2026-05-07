@@ -34,7 +34,7 @@ public interface IAuthorizedValidator
 
 internal sealed class EmailValidator : IValidator
 {
-  private readonly string _emailPattern = @"^[A-Za-z\d]{1,}@(nkust\.edu\.tw|gmail\.com)$";
+  private readonly string _emailPattern = @"^[A-Za-z\d]+@(nkust\.edu\.tw|gmail\.com)$";
   public bool IsValid(string email)
   {
     if (Regex.IsMatch(email, _emailPattern)) return true;

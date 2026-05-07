@@ -16,20 +16,20 @@ public static class Shopping
 		var group = app.MapGroup("/Shopping");
 
 		group.PointsEndpoints()
-					.RequireAuthorization()
-					.RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+			.RequireAuthorization()
+			.RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
 
 		group.CartEndpoints()
-					.RequireAuthorization()
-					.RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+			.RequireAuthorization()
+			.RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
 
 		group.OrderEndpoints()
-					.RequireAuthorization()
-					.RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+			.RequireAuthorization()
+			.RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
 
 		group.ProductEndpoints()
-					.RequireAuthorization()
-					.RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+			.RequireAuthorization()
+			.RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
 
 		// I put something in my cart endpoint
 		group.MapPost("/WishList", async (
@@ -58,9 +58,9 @@ public static class Shopping
 
 
 			Product? product = await dbContext.Products.FirstOrDefaultAsync(
-																									p => p.ProductId == dto.ProductId,
-																									ct
-																								);
+															p => p.ProductId == dto.ProductId,
+															ct
+														);
 			if (product is null)
 				return errorHandler.NotFoundResult(
 						title: "I dont exist issue",
@@ -77,12 +77,12 @@ public static class Shopping
 
 			// Check wether there is cart hasn't been ordered
 			Cart? teacherCart = await dbContext.Carts.Include(c => c.CartProductList)
-																									.ThenInclude(c => c.Product)
-																								.Where(
-																									c => c.CustomerId == teacher.TeacherId
-																									&& c.Ordered == false
-																								)
-																								.FirstOrDefaultAsync(ct);
+														.ThenInclude(c => c.Product)
+													.Where(
+														c => c.CustomerId == teacher.TeacherId
+														&& c.Ordered == false
+													)
+													.FirstOrDefaultAsync(ct);
 
 			if (teacherCart is null)
 			{

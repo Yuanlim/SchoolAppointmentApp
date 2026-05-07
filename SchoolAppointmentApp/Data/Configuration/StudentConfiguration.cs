@@ -39,5 +39,7 @@ public class StudentConfiguration : IEntityTypeConfiguration<Student>
         // Each student must required a UserId
         builder.Property(s => s.UserId)
                 .IsRequired();
+
+
     }
 }

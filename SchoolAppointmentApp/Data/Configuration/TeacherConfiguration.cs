@@ -22,7 +22,7 @@ public class TeacherConfiguration : IEntityTypeConfiguration<Teacher>
                 .HasDefaultValue(0);
 
         builder.HasOne(t => t.User)
-                .WithOne(user => user.Teacher)
+                .WithOne(u => u.Teacher)
                 .HasForeignKey<Teacher>(t => t.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 

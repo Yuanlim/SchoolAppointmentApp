@@ -7,8 +7,8 @@ namespace SchoolAppointmentApp.FunctionalClasses;
 public interface IDuplicateChecker
 {
     Task<bool> IsDuplicateAsync(
-        Roles? Role, string email,
-        string Id
+        Roles Role, string email,
+        string Id, string? phoneNumber
     );
 }
 
@@ -16,32 +16,38 @@ internal sealed class DuplicateChecker(MyAppDbContext dbContext)
     : DataBaseService(dbContext), IDuplicateChecker
 {
     public async Task<bool> IsDuplicateAsync(
-        Roles? Role, string email,
-        string id
+        Roles Role, string email,
+        string id, string? phoneNumber
     )
     {
-        bool duplicated = Role.ToString()!.ToLowerInvariant() switch
+        bool firstStage = default;
+
+        switch (Role)
         {
-            "student" =>
-                await dbContext.Students.AsNoTracking()
-                                  .FirstOrDefaultAsync(s => s.StudentId == id)
-                                  is not null ||
-                await dbContext.Users.AsNoTracking()
-                               .FirstOrDefaultAsync(u => u.Email == email)
-                               is not null,
+            case Roles.student:
+                // If student table contain this id 
+                firstStage = await dbContext.Students.AsNoTracking()
+                                                     .AnyAsync(s => s.StudentId == id);
+                break;
 
-            "teacher" =>
-                await dbContext.Teachers.AsNoTracking()
-                                  .FirstOrDefaultAsync(s => s.TeacherId == id)
-                                  is not null ||
-                await dbContext.Users.AsNoTracking()
-                               .FirstOrDefaultAsync(u => u.Email == email)
-                               is not null,
+            case Roles.teacher:
+                firstStage = await dbContext.Teachers.AsNoTracking()
+                                                     .AnyAsync(t => t.TeacherId == id);
+                break;
 
-            _ =>
-                throw new Exception("Unexpected Role")
-        };
+            default:
+                throw new("Invalid Role");
+        }
 
-        return duplicated;
+        bool secondStage = await dbContext.Users.AsNoTracking()
+                                                .AnyAsync(u =>
+                                                    // Dup email
+                                                    u.Email == email ||
+                                                    // Dup phone number
+                                                    (!string.IsNullOrWhiteSpace(phoneNumber)
+                                                    && u.PhoneNumber == phoneNumber)
+                                                );
+
+        return firstStage || secondStage;
     }
 }

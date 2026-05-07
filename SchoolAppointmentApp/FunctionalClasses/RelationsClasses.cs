@@ -49,50 +49,52 @@ internal sealed class BlockChecker(MyAppDbContext dbContext)
 
     return block;
   }
-  internal sealed class RelationHandler(MyAppDbContext dbContext)
-    : DataBaseService(dbContext), IRelationship
-  {
-    public async Task<List<FriendRequest>> GetUserMeetRelationList(
-      User user, FriendRequestStatus frs, CancellationToken ct
-    )
-    {
-      if (frs?.FriendRequestPossibleStatus != FriendRequestPossibleStatus.Pending)
-      {
-        return
-          await dbContext.FriendRequests
-                          .Where(
-                            fr => fr.FriendRequestStatus == frs &&
-                                  (fr.ReceiverId == user!.UserId || fr.InitiatorId == user!.UserId)
-                          )
-                          .Include(fr => fr.Initiator)
-                            .ThenInclude(i => i.Student)
-                          .Include(fr => fr.Initiator)
-                            .ThenInclude(i => i.Teacher)
-                          .Include(fr => fr.Receiver)
-                            .ThenInclude(r => r.Student)
-                          .Include(fr => fr.Receiver)
-                            .ThenInclude(r => r.Teacher)
-                          .ToListAsync(ct);
+}
 
-      }
-      else
-      {
-        return
-          await dbContext.FriendRequests
-                          .Where(
-                            fr => fr.FriendRequestStatus == frs &&
-                                  fr.ReceiverId == user!.UserId
-                          )
-                          .Include(fr => fr.Initiator)
-                            .ThenInclude(i => i.Student)
-                          .Include(fr => fr.Initiator)
-                            .ThenInclude(i => i.Teacher)
-                          .Include(fr => fr.Receiver)
-                            .ThenInclude(r => r.Student)
-                          .Include(fr => fr.Receiver)
-                            .ThenInclude(r => r.Teacher)
-                          .ToListAsync(ct);
-      }
+internal sealed class RelationHandler(MyAppDbContext dbContext)
+    : DataBaseService(dbContext), IRelationship
+{
+  public async Task<List<FriendRequest>> GetUserMeetRelationList(
+    User user, FriendRequestStatus frs, CancellationToken ct
+  )
+  {
+    if (frs?.FriendRequestPossibleStatus != FriendRequestPossibleStatus.Pending)
+    {
+      return
+        await dbContext.FriendRequests
+                        .Where(
+                          fr => fr.FriendRequestStatus == frs &&
+                                (fr.ReceiverId == user!.UserId || fr.InitiatorId == user!.UserId)
+                        )
+                        .Include(fr => fr.Initiator)
+                          .ThenInclude(i => i.Student)
+                        .Include(fr => fr.Initiator)
+                          .ThenInclude(i => i.Teacher)
+                        .Include(fr => fr.Receiver)
+                          .ThenInclude(r => r.Student)
+                        .Include(fr => fr.Receiver)
+                          .ThenInclude(r => r.Teacher)
+                        .ToListAsync(ct);
+
     }
+    else
+    {
+      return
+        await dbContext.FriendRequests
+                        .Where(
+                          fr => fr.FriendRequestStatus == frs &&
+                                fr.ReceiverId == user!.UserId
+                        )
+                        .Include(fr => fr.Initiator)
+                          .ThenInclude(i => i.Student)
+                        .Include(fr => fr.Initiator)
+                          .ThenInclude(i => i.Teacher)
+                        .Include(fr => fr.Receiver)
+                          .ThenInclude(r => r.Student)
+                        .Include(fr => fr.Receiver)
+                          .ThenInclude(r => r.Teacher)
+                        .ToListAsync(ct);
+    }
+
   }
 }

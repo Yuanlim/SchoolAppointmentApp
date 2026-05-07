@@ -47,7 +47,7 @@ public static class MyCart
                                           c.CustomerId == teacher.TeacherId &&
                                           !c.Ordered
                                         )
-                                        .SingleOrDefaultAsync(ct);
+                                        .FirstOrDefaultAsync(ct);
 
       return Results.Ok(cart.ToCartDto());
 

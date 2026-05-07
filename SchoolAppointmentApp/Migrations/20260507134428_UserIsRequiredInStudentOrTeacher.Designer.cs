@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SchoolAppointmentApp.Data;
@@ -11,9 +12,11 @@ using SchoolAppointmentApp.Data;
 namespace SchoolAppointmentApp.Migrations
 {
     [DbContext(typeof(MyAppDbContext))]
-    partial class MyAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260507134428_UserIsRequiredInStudentOrTeacher")]
+    partial class UserIsRequiredInStudentOrTeacher
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,13 +59,13 @@ namespace SchoolAppointmentApp.Migrations
                         {
                             AdminId = 1,
                             AdminLoginId = "iwueowsakd62981sksai",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMRaGtjqdh0fBDTRhUT6cyIJME6FyreJVOKsdXOSOhJ6ifmqjbg1I/4i5TTGP66x9A=="
+                            PasswordHash = "AQAAAAIAAYagAAAAEPkLFJ63cyGZh4YEMMBflj7olrKjkCRfswg70N4NWZyONPxcarnHnhuX2zozI1OGAg=="
                         },
                         new
                         {
                             AdminId = 2,
                             AdminLoginId = "84u232fhfehw889d0ufd",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMRaGtjqdh0fBDTRhUT6cyIJME6FyreJVOKsdXOSOhJ6ifmqjbg1I/4i5TTGP66x9A=="
+                            PasswordHash = "AQAAAAIAAYagAAAAEF5EzKnMIKp0aWrnmYAxClS2aiFfz0dDljh38TEU1KdwOcJnzpjiSK6Hczvs53pM1Q=="
                         });
                 });
 
@@ -605,7 +608,7 @@ namespace SchoolAppointmentApp.Migrations
                         new
                         {
                             Id = 1,
-                            PasswordHash = "AQAAAAIAAYagAAAAEMRaGtjqdh0fBDTRhUT6cyIJME6FyreJVOKsdXOSOhJ6ifmqjbg1I/4i5TTGP66x9A==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOe6noMHGXGrXzbCSkir9wB2m2z8GwLZTUp69XY2CT9Bpe4dwpTh29iOYbVBPp2dNw==",
                             PrincipalId = "L123456"
                         });
                 });

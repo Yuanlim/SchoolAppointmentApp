@@ -17,7 +17,7 @@ public class SchoolPrincipalConfiguration : IEntityTypeConfiguration<SchoolPrinc
             {
                 Id = 1,
                 PrincipalId = "L123456",
-                PasswordHash = "AQAAAAIAAYagAAAAEOe6noMHGXGrXzbCSkir9wB2m2z8GwLZTUp69XY2CT9Bpe4dwpTh29iOYbVBPp2dNw=="
+                PasswordHash = "AQAAAAIAAYagAAAAEMRaGtjqdh0fBDTRhUT6cyIJME6FyreJVOKsdXOSOhJ6ifmqjbg1I/4i5TTGP66x9A=="
             }
         );
     }

@@ -19,13 +19,13 @@ public class AdminConfiguration : IEntityTypeConfiguration<Admin>
             {
                 AdminId = 1,
                 AdminLoginId = "iwueowsakd62981sksai",
-                PasswordHash = "AQAAAAIAAYagAAAAEPkLFJ63cyGZh4YEMMBflj7olrKjkCRfswg70N4NWZyONPxcarnHnhuX2zozI1OGAg=="
+                PasswordHash = "AQAAAAIAAYagAAAAEMRaGtjqdh0fBDTRhUT6cyIJME6FyreJVOKsdXOSOhJ6ifmqjbg1I/4i5TTGP66x9A=="
             },
             new
             {
                 AdminId = 2,
                 AdminLoginId = "84u232fhfehw889d0ufd",
-                PasswordHash = "AQAAAAIAAYagAAAAEF5EzKnMIKp0aWrnmYAxClS2aiFfz0dDljh38TEU1KdwOcJnzpjiSK6Hczvs53pM1Q=="
+                PasswordHash = "AQAAAAIAAYagAAAAEMRaGtjqdh0fBDTRhUT6cyIJME6FyreJVOKsdXOSOhJ6ifmqjbg1I/4i5TTGP66x9A=="
             }
         );
     }
