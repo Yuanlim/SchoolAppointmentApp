@@ -1,0 +1,483 @@
+[
+    {
+        "caseName": "Missing email with valid student data",
+        "body": {
+            "Role": "student",
+            "Id": "STU928",
+            "Name": "Mika",
+            "Password": "SkyBlue@2026",
+            "Email": null,
+            "PhoneNumber": "0184729103",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Empty email with valid teacher data",
+        "body": {
+            "Role": "teacher",
+            "Id": "TCH572",
+            "Name": "Daniel",
+            "Password": "Teach@8821",
+            "Email": "",
+            "PhoneNumber": "0119384726",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Unsupported email domain",
+        "body": {
+            "Role": "student",
+            "Id": "STU317",
+            "Name": "Yuki",
+            "Password": "Pass@3179",
+            "Email": "yuki@hotmail.com",
+            "PhoneNumber": "0162289147",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Malformed gmail email",
+        "body": {
+            "Role": "student",
+            "Id": "STU665",
+            "Name": "Aaron",
+            "Password": "GoodPass@665",
+            "Email": "aaron@@gmail.com",
+            "PhoneNumber": "0127763491",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Missing name with valid role",
+        "body": {
+            "Role": "student",
+            "Id": "STU451",
+            "Name": null,
+            "Password": "Valid@451",
+            "Email": "student451@gmail.com",
+            "PhoneNumber": "0193847561",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Name too short",
+        "body": {
+            "Role": "teacher",
+            "Id": "TCH203",
+            "Name": "Al",
+            "Password": "Teacher@203",
+            "Email": "teacher203@nkust.edu.tw",
+            "PhoneNumber": "0172938475",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Empty name",
+        "body": {
+            "Role": "student",
+            "Id": "STU709",
+            "Name": "",
+            "Password": "Student@709",
+            "Email": "student709@gmail.com",
+            "PhoneNumber": "0148293746",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid role random word",
+        "body": {
+            "Role": "manager",
+            "Id": "STU820",
+            "Name": "Brenda",
+            "Password": "Random@820",
+            "Email": "brenda@gmail.com",
+            "PhoneNumber": "0139182746",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid role typo",
+        "body": {
+            "Role": "studnet",
+            "Id": "STU144",
+            "Name": "Kelvin",
+            "Password": "Typo@144",
+            "Email": "kelvin@nkust.edu.tw",
+            "PhoneNumber": "0182229341",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Admin cannot register directly",
+        "body": {
+            "Role": "admin",
+            "Id": "ADM001",
+            "Name": "AdminUser",
+            "Password": "Admin@123",
+            "Email": "adminuser@gmail.com",
+            "PhoneNumber": "0167738291",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "School principal cannot register directly",
+        "body": {
+            "Role": "schoolPrincipal",
+            "Id": "PRI001",
+            "Name": "PrincipalLim",
+            "Password": "Principal@123",
+            "Email": "principal@nkust.edu.tw",
+            "PhoneNumber": "0199982731",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Missing id",
+        "body": {
+            "Role": "student",
+            "Id": null,
+            "Name": "Nathan",
+            "Password": "Nathan@789",
+            "Email": "nathan789@gmail.com",
+            "PhoneNumber": "0123847569",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Empty id",
+        "body": {
+            "Role": "teacher",
+            "Id": "",
+            "Name": "Sophia",
+            "Password": "Sophia@456",
+            "Email": "sophia@nkust.edu.tw",
+            "PhoneNumber": "0112847392",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Missing password",
+        "body": {
+            "Role": "student",
+            "Id": "STU284",
+            "Name": "Vivian",
+            "Password": null,
+            "Email": "vivian284@gmail.com",
+            "PhoneNumber": "0172239481",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Empty password",
+        "body": {
+            "Role": "student",
+            "Id": "STU394",
+            "Name": "Jason",
+            "Password": "",
+            "Email": "jason394@nkust.edu.tw",
+            "PhoneNumber": "0191122334",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Role has surrounding spaces",
+        "body": {
+            "Role": " student ",
+            "Id": "STU741",
+            "Name": "Lucas",
+            "Password": "Lucas@741",
+            "Email": "lucas741@gmail.com",
+            "PhoneNumber": "0127778889",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Name with numbers",
+        "body": {
+            "Role": "teacher",
+            "Id": "TCH818",
+            "Name": "John123",
+            "Password": "John@818",
+            "Email": "john818@nkust.edu.tw",
+            "PhoneNumber": "0138274619",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Name with special characters",
+        "body": {
+            "Role": "student",
+            "Id": "STU939",
+            "Name": "Amy!!!",
+            "Password": "Amy@9399",
+            "Email": "amy939@gmail.com",
+            "PhoneNumber": "0183847562",
+            "Class": "電通三甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Multiple invalid fields random payload",
+        "body": {
+            "Role": "captain",
+            "Id": null,
+            "Name": "Q",
+            "Password": null,
+            "Email": "not-an-email",
+            "PhoneNumber": "abc-phone",
+            "Class": "UnknownClass999"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid class 電通四甲",
+        "body": {
+            "Role": "student",
+            "Id": "STU482",
+            "Name": "Mika",
+            "Password": "Mika@4821",
+            "Email": "mika482@gmail.com",
+            "PhoneNumber": "0184729103",
+            "Class": "電通四甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid class 資工一甲",
+        "body": {
+            "Role": "student",
+            "Id": "STU915",
+            "Name": "Aaron",
+            "Password": "Aaron@915",
+            "Email": "aaron915@nkust.edu.tw",
+            "PhoneNumber": "0129384756",
+            "Class": "資工一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid class empty string",
+        "body": {
+            "Role": "student",
+            "Id": "STU263",
+            "Name": "Cassey",
+            "Password": "Cassey@263",
+            "Email": "cassey263@gmail.com",
+            "PhoneNumber": "0118273645",
+            "Class": ""
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid class null",
+        "body": {
+            "Role": "student",
+            "Id": "STU604",
+            "Name": "Daniel",
+            "Password": "Daniel@604",
+            "Email": "daniel604@gmail.com",
+            "PhoneNumber": "0164829103",
+            "Class": null
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid class with spaces",
+        "body": {
+            "Role": "student",
+            "Id": "STU771",
+            "Name": "Vivian",
+            "Password": "Vivian@771",
+            "Email": "vivian771@nkust.edu.tw",
+            "PhoneNumber": "0173849201",
+            "Class": " 電通一甲 "
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid class typo",
+        "body": {
+            "Role": "student",
+            "Id": "STU308",
+            "Name": "Jason",
+            "Password": "Jason@308",
+            "Email": "jason308@gmail.com",
+            "PhoneNumber": "0149283746",
+            "Class": "電通一乙"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid id empty string",
+        "body": {
+            "Role": "student",
+            "Id": "",
+            "Name": "Sophia",
+            "Password": "Sophia@102",
+            "Email": "sophia102@gmail.com",
+            "PhoneNumber": "0192837465",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid id whitespace only",
+        "body": {
+            "Role": "student",
+            "Id": "   ",
+            "Name": "Lucas",
+            "Password": "Lucas@441",
+            "Email": "lucas441@nkust.edu.tw",
+            "PhoneNumber": "0138472910",
+            "Class": "電通二甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid id null",
+        "body": {
+            "Role": "teacher",
+            "Id": null,
+            "Name": "Kelvin",
+            "Password": "Kelvin@552",
+            "Email": "kelvin552@gmail.com",
+            "PhoneNumber": "0182229341",
+            "Class": "電通三甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid password empty string",
+        "body": {
+            "Role": "student",
+            "Id": "STU736",
+            "Name": "IvyChen",
+            "Password": "",
+            "Email": "ivy736@gmail.com",
+            "PhoneNumber": "0164728391",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid password whitespace only",
+        "body": {
+            "Role": "teacher",
+            "Id": "TCH826",
+            "Name": "Brenda",
+            "Password": "   ",
+            "Email": "brenda826@nkust.edu.tw",
+            "PhoneNumber": "0123847569",
+            "Class": "電通二甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid password null",
+        "body": {
+            "Role": "student",
+            "Id": "STU119",
+            "Name": "Nathan",
+            "Password": null,
+            "Email": "nathan119@gmail.com",
+            "PhoneNumber": "0119384726",
+            "Class": "電通三甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid class and empty id",
+        "body": {
+            "Role": "student",
+            "Id": "",
+            "Name": "Yuki",
+            "Password": "Yuki@884",
+            "Email": "yuki884@gmail.com",
+            "PhoneNumber": "0172938475",
+            "Class": "資管一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid class and empty password",
+        "body": {
+            "Role": "student",
+            "Id": "STU640",
+            "Name": "Ethan",
+            "Password": "",
+            "Email": "ethan640@nkust.edu.tw",
+            "PhoneNumber": "0191122334",
+            "Class": "電通二乙"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Invalid id password and class",
+        "body": {
+            "Role": "student",
+            "Id": "",
+            "Name": "Olivia",
+            "Password": "",
+            "Email": "olivia900@gmail.com",
+            "PhoneNumber": "0183847562",
+            "Class": "UnknownClass999"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Valid class 電通一甲 but invalid empty id",
+        "body": {
+            "Role": "student",
+            "Id": "",
+            "Name": "Marcus",
+            "Password": "Marcus@391",
+            "Email": "marcus391@gmail.com",
+            "PhoneNumber": "0127778889",
+            "Class": "電通一甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Valid class 電通二甲 but invalid empty password",
+        "body": {
+            "Role": "teacher",
+            "Id": "TCH518",
+            "Name": "Rachel",
+            "Password": "",
+            "Email": "rachel518@nkust.edu.tw",
+            "PhoneNumber": "0167738291",
+            "Class": "電通二甲"
+        },
+        "expectedStatus": 400
+    },
+    {
+        "caseName": "Valid class 電通三甲 but invalid whitespace id and password",
+        "body": {
+            "Role": "student",
+            "Id": "   ",
+            "Name": "Henry",
+            "Password": "   ",
+            "Email": "henry734@gmail.com",
+            "PhoneNumber": "0199982731",
+            "Class": "電通三甲"
+        },
+        "expectedStatus": 400
+    }
+]

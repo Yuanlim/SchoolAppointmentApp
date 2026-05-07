@@ -1,0 +1,380 @@
+[
+  {
+    "caseName": "Valid student account 1",
+    "body": {
+      "Role": "Student",
+      "Id": "STU001",
+      "Name": "Lucas",
+      "Password": "Lucas@701",
+      "Email": "lucas701@gmail.com",
+      "PhoneNumber": "0123450001",
+      "Class": "電通一甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 2",
+    "body": {
+      "Role": "Student",
+      "Id": "STU002",
+      "Name": "Emma",
+      "Password": "Emma@702",
+      "Email": "emma702@nkust.edu.tw",
+      "PhoneNumber": "0123450002",
+      "Class": "電通二甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 3",
+    "body": {
+      "Role": "Student",
+      "Id": "STU003",
+      "Name": "Noah",
+      "Password": "Noah@703",
+      "Email": "noah703@gmail.com",
+      "PhoneNumber": null,
+      "Class": "電通三甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 4",
+    "body": {
+      "Role": "Student",
+      "Id": "STU004",
+      "Name": "Olivia",
+      "Password": "Olivia@704",
+      "Email": "olivia704@nkust.edu.tw",
+      "PhoneNumber": "0123450004",
+      "Class": "電通一甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 5",
+    "body": {
+      "Role": "Student",
+      "Id": "STU005",
+      "Name": "Liam",
+      "Password": "Liam@705",
+      "Email": "liam705@gmail.com",
+      "PhoneNumber": "0123450005",
+      "Class": "電通二甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 6",
+    "body": {
+      "Role": "Student",
+      "Id": "STU006",
+      "Name": "Aria",
+      "Password": "Aria@706",
+      "Email": "aria706@nkust.edu.tw",
+      "PhoneNumber": null,
+      "Class": "電通三甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 7",
+    "body": {
+      "Role": "Student",
+      "Id": "STU007",
+      "Name": "Ethan",
+      "Password": "Ethan@707",
+      "Email": "ethan707@gmail.com",
+      "PhoneNumber": "0123450007",
+      "Class": "電通一甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 8",
+    "body": {
+      "Role": "Student",
+      "Id": "STU008",
+      "Name": "Mila",
+      "Password": "Mila@708",
+      "Email": "mila708@nkust.edu.tw",
+      "PhoneNumber": "0123450008",
+      "Class": "電通二甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 9",
+    "body": {
+      "Role": "Student",
+      "Id": "STU009",
+      "Name": "Oscar",
+      "Password": "Oscar@709",
+      "Email": "oscar709@gmail.com",
+      "PhoneNumber": null,
+      "Class": "電通三甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 10",
+    "body": {
+      "Role": "Student",
+      "Id": "STU010",
+      "Name": "Sophia",
+      "Password": "Sophia@710",
+      "Email": "sophia710@nkust.edu.tw",
+      "PhoneNumber": "0123450010",
+      "Class": "電通一甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 11",
+    "body": {
+      "Role": "Student",
+      "Id": "STU011",
+      "Name": "Henry",
+      "Password": "Henry@711",
+      "Email": "henry711@gmail.com",
+      "PhoneNumber": "0123450011",
+      "Class": "電通二甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 12",
+    "body": {
+      "Role": "Student",
+      "Id": "STU012",
+      "Name": "Chloe",
+      "Password": "Chloe@712",
+      "Email": "chloe712@nkust.edu.tw",
+      "PhoneNumber": null,
+      "Class": "電通三甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 13",
+    "body": {
+      "Role": "Student",
+      "Id": "STU013",
+      "Name": "Daniel",
+      "Password": "Daniel@713",
+      "Email": "daniel713@gmail.com",
+      "PhoneNumber": "0123450013",
+      "Class": "電通一甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 14",
+    "body": {
+      "Role": "Student",
+      "Id": "STU014",
+      "Name": "Grace",
+      "Password": "Grace@714",
+      "Email": "grace714@nkust.edu.tw",
+      "PhoneNumber": "0123450014",
+      "Class": "電通二甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 15",
+    "body": {
+      "Role": "Student",
+      "Id": "STU015",
+      "Name": "Aaron",
+      "Password": "Aaron@715",
+      "Email": "aaron715@gmail.com",
+      "PhoneNumber": null,
+      "Class": "電通三甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 16",
+    "body": {
+      "Role": "Student",
+      "Id": "STU016",
+      "Name": "Bella",
+      "Password": "Bella@716",
+      "Email": "bella716@nkust.edu.tw",
+      "PhoneNumber": "0123450016",
+      "Class": "電通一甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 17",
+    "body": {
+      "Role": "Student",
+      "Id": "STU017",
+      "Name": "Ryan",
+      "Password": "Ryan@717",
+      "Email": "ryan717@gmail.com",
+      "PhoneNumber": "0123450017",
+      "Class": "電通二甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid student account 18",
+    "body": {
+      "Role": "Student",
+      "Id": "STU018",
+      "Name": "Nora",
+      "Password": "Nora@718",
+      "Email": "nora718@nkust.edu.tw",
+      "PhoneNumber": null,
+      "Class": "電通三甲"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid teacher account 1",
+    "body": {
+      "Role": "Teacher",
+      "Id": "TCH001",
+      "Name": "Alice",
+      "Password": "Alice@801",
+      "Email": "alice801@gmail.com",
+      "PhoneNumber": "0134560001"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid teacher account 2",
+    "body": {
+      "Role": "Teacher",
+      "Id": "TCH002",
+      "Name": "Brandon",
+      "Password": "Brandon@802",
+      "Email": "brandon802@nkust.edu.tw",
+      "PhoneNumber": "0134560002"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid teacher account 3",
+    "body": {
+      "Role": "Teacher",
+      "Id": "TCH003",
+      "Name": "Catherine",
+      "Password": "Catherine@803",
+      "Email": "catherine803@gmail.com",
+      "PhoneNumber": null
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid teacher account 4",
+    "body": {
+      "Role": "Teacher",
+      "Id": "TCH004",
+      "Name": "David",
+      "Password": "David@804",
+      "Email": "david804@nkust.edu.tw",
+      "PhoneNumber": "0134560004"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid teacher account 5",
+    "body": {
+      "Role": "Teacher",
+      "Id": "TCH005",
+      "Name": "Eleanor",
+      "Password": "Eleanor@805",
+      "Email": "eleanor805@gmail.com",
+      "PhoneNumber": "0134560005"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid teacher account 6",
+    "body": {
+      "Role": "Teacher",
+      "Id": "TCH006",
+      "Name": "Felix",
+      "Password": "Felix@806",
+      "Email": "felix806@nkust.edu.tw",
+      "PhoneNumber": null
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid teacher account 7",
+    "body": {
+      "Role": "Teacher",
+      "Id": "TCH007",
+      "Name": "Gloria",
+      "Password": "Gloria@807",
+      "Email": "gloria807@gmail.com",
+      "PhoneNumber": "0134560007"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid teacher account 8",
+    "body": {
+      "Role": "Teacher",
+      "Id": "TCH008",
+      "Name": "Harvey",
+      "Password": "Harvey@808",
+      "Email": "harvey808@nkust.edu.tw",
+      "PhoneNumber": "0134560008"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid teacher account 9",
+    "body": {
+      "Role": "Teacher",
+      "Id": "TCH009",
+      "Name": "Isabel",
+      "Password": "Isabel@809",
+      "Email": "isabel809@gmail.com",
+      "PhoneNumber": null
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid teacher account 10",
+    "body": {
+      "Role": "Teacher",
+      "Id": "TCH010",
+      "Name": "Jason",
+      "Password": "Jason@810",
+      "Email": "jason810@nkust.edu.tw",
+      "PhoneNumber": "0134560010"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid teacher account 11",
+    "body": {
+      "Role": "Teacher",
+      "Id": "TCH011",
+      "Name": "Karen",
+      "Password": "Karen@811",
+      "Email": "karen811@gmail.com",
+      "PhoneNumber": "0134560011"
+    },
+    "expectedStatus": 201
+  },
+  {
+    "caseName": "Valid teacher account 12",
+    "body": {
+      "Role": "Teacher",
+      "Id": "TCH012",
+      "Name": "Martin",
+      "Password": "Martin@812",
+      "Email": "martin812@nkust.edu.tw",
+      "PhoneNumber": null
+    },
+    "expectedStatus": 201
+  }
+]

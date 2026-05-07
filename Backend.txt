@@ -1,0 +1,23 @@
+Backend
+1. Fix register validator for name logic incorrectness 
+2. Unauthorize or Problem didn't response with ErrorType
+3. Message migration mistype Receiver FK are both SenderId and ReceiverId
+
+I am Lim Zu Yuan, and I am Malaysian. I recently graduated from National Kaohsiung University of Science and Technology with a Master’s degree. In the past few years, I have been working on many projects that required me to develop my own webhooks, algorithms, data structures, and UI. Because I am greatly interested in programming, my most-used languages right now are Python, C#, and TypeScript.
+My curiosity for exploring programming led me to start programming during my Bachelor’s degree. Since then, more topics have been exposed to me, leading me to also become interested in researching algorithms and different programming techniques in my Master’s degree to improve performance when working on projects.
+I have also studied a course called System Analysis and Design. It not only gave me the ability to understand planned materials, but also made me eager to implement them. I am currently in the middle of working on a project using React TypeScript and ASP.NET, and it has been fun and has helped me improve along the way.
+
+Personal competitive advantages
+1) Stay learning, not afraid to take criticism.
+2) Can provide my own solutions to the problem, based on master thesis proposed solution to a hard question.
+3) Have experience in many languages, get confurtable with large codebase very quickly.
+4) Know how to use UML to delevop database system and backend required functionallities.
+5) Have experience in developing large project that is both front end and back end, with many features.
+6) Flexibilities in job hours.
+
+Areas for improvement
+1) Unfimilliar with authentication part of back end e.g login or register.
+2) Doesn't have industries coding experince, need to learn the standards.
+
+I have encountered many errors, when working on react projects using JavaScripts becuase JavaScripts are not compile time checking errors, and I am not confortable working with it. So when I relearned react I overcame it by using TypeScript istead of JavaScript.
+The most fulfilling experience I ever have is come out with a solution to a hard problem in my master thesis. I achieve it by analysing

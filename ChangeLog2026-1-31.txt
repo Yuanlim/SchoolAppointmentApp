@@ -1,0 +1,23 @@
+React:
+Chat page: 
+1. Infinite request append the same messages
+2. After clicking person in address book hide address book
+3. Width 500 hide address book but no button to expand
+4. Address book container overly width 
+5. Move chat media css to chat.css, due to priority and messy issues
+6. Add useCallBack to show person click person handler for rerender optimization
+
+Shopping page: 
+1. Make add amount input-able
+2. Available points wont update after placing order
+3. Setting cart to empty once's place order is successful
+4. Add to cart are not hinting at user when it is successful
+5. Once placed order exit view cart window
+
+Redux:
+1. Add delete cart item and update cart item quantity to redux. (Not tested)
+
+ASP.Net:
+Wishlist endpoint:
+1. Product AsNoTracking add to CartItem table causes it to create new Product in product table.
+2. Change CartItemDto to return productId so future front could refer product deletion or patch
