@@ -11,7 +11,7 @@ public class FriendRequestStatusConfiguration : IEntityTypeConfiguration<FriendR
         builder.HasKey(fs => fs.StatusId);
 
         builder.Property(fs => fs.FriendRequestPossibleStatus)
-          .HasConversion<string>();
+                .HasConversion<string>();
 
         builder.HasData(
             new { StatusId = 1, FriendRequestPossibleStatus = FriendRequestPossibleStatus.Pending },

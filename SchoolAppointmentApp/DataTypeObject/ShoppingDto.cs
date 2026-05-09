@@ -80,3 +80,8 @@ public record OrderDto
 	ICollection<OrderItemDto> OrderItems,
 	OrderPossibleStatus Status
 );
+
+public record CreateProductListDto
+(
+	ICollection<CreateProductDto> Products
+);

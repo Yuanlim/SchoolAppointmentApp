@@ -12,7 +12,7 @@ public class OrderStatusConfiguration : IEntityTypeConfiguration<OrderStatus>
 
         // Saved it as status string
         builder.Property(os => os.Status)
-            .HasConversion<string>();
+                .HasConversion<string>();
 
         builder.HasData(
             new { StatusId = 1, Status = OrderPossibleStatus.pending },

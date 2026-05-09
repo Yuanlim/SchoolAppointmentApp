@@ -10,8 +10,9 @@ public class OrderItemStatusConfiguration : IEntityTypeConfiguration<OrderItemSt
     {
         builder.HasKey(ois => ois.StatusId);
 
+        // Save it as string
         builder.Property(ois => ois.Status)
-            .HasConversion<string>();
+                .HasConversion<string>();
 
         builder.HasData(
             new { StatusId = 1, Status = OrderItemPossibleStatus.pending },

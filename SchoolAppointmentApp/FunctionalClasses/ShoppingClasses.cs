@@ -64,6 +64,18 @@ public interface IGetCartItem
 		CancellationToken cancellationToken,
 		bool AsTracking = false
 	);
+
+	public Task<List<CartItem>?> GetEntireList(
+		ClaimsPrincipal claimsPrincipal,
+		CancellationToken ct,
+		bool AsTracking = false
+	);
+
+	public IQueryable<CartItem> ThatItemQuery(
+		Cart cart,
+		int productId,
+		bool AsNoTracking = false
+	);
 }
 
 internal sealed class ProductListClasses(MyAppDbContext dbContext) :
@@ -78,11 +90,12 @@ internal sealed class ProductListClasses(MyAppDbContext dbContext) :
 		IQueryable<Product> productListQuery = dbContext.Products;
 
 		// IF searchString is null or only white space => intention: get product by id (random scrolling)
-		if (!string.IsNullOrWhiteSpace(searchString))
+		if (!string.IsNullOrWhiteSpace(searchString) && searchString != "")
 		{
 			System.Console.WriteLine(searchString);
 			productListQuery = productListQuery.Where(
 					p => EF.Functions.Like(p.Description, $"%{searchString}%")
+						|| EF.Functions.Like(p.ProductName, $"%{searchString}%")
 			);
 		}
 
@@ -90,7 +103,7 @@ internal sealed class ProductListClasses(MyAppDbContext dbContext) :
 		// Each expand button pressed it takes the next 5 product
 		var productList = productListQuery.AsNoTracking()
 										.OrderBy(p => p.ProductId)
-										.Skip((limitStep - 1) * maximumProductListedEachExpand)
+										.Skip(Math.Max(limitStep, 0) * maximumProductListedEachExpand)
 										.Take(maximumProductListedEachExpand);
 
 		// To table field to dtos
@@ -115,7 +128,6 @@ internal sealed class ProductListClasses(MyAppDbContext dbContext) :
 internal sealed class OrderItemListClasses(MyAppDbContext dbContext)
 		: DataBaseService(dbContext), IOrderItemList
 {
-	public Guid guid = Guid.NewGuid();
 	public async Task<ICollection<OrderItem>> GetOrderItemList(ClaimsPrincipal user, CancellationToken ct)
 	{
 		var TeacherId = user.FindFirstValue("TeacherId");
@@ -171,14 +183,14 @@ internal sealed class GetCartHandler(MyAppDbContext dbContext)
 		: DataBaseService(dbContext), IGetCart
 {
 	/// <summary>
-	/// 	Get teacher's cart query with Teacher obj or ClaimsPriciple obj
+	/// 	Get teacher's cart query with Teacher obj	
 	/// 	With FirstOrDefualt to get cart result.
 	/// 	With ExecuteDelete to delete cart.
 	/// </summary>
 	/// <param name="teacher">Object of teacher info, to get its id</param>
 	/// <param name="cancellationToken">Immediate cancelling the operation, once logout or so on.</param>
 	/// <param name="AsNoTracking">defualt as false, when changes need to be applied set as "true"</param>
-	/// <returns>Type: Cart, Teacher's cart that has not been order</returns>
+	/// <returns>Type: Cart Query, Teacher's cart that has not been order</returns>
 	public IQueryable<Cart> GetCartQueryAsync(
 		Teacher teacher,
 		CancellationToken cancellationToken,
@@ -191,14 +203,22 @@ internal sealed class GetCartHandler(MyAppDbContext dbContext)
 		if (AsNoTracking) cartQuery = cartQuery.AsNoTracking();
 
 		return cartQuery.Include(c => c.CartProductList)
-											.ThenInclude(cpl => cpl.Product)
-										.Where(
-											c =>
-												c.CustomerId == teacher.TeacherId &&
-												!c.Ordered
-										);
+							.ThenInclude(cpl => cpl.Product)
+						.Where(
+							c =>
+								c.CustomerId == teacher.TeacherId &&
+								!c.Ordered
+						);
 	}
-
+	/// <summary>
+	/// 	Get teacher's cart query with ClaimPrincipal obj	
+	/// 	With FirstOrDefualt to get cart result.
+	/// 	With ExecuteDelete to delete cart.
+	/// </summary>
+	/// <param name="claimsPrincipal">Object of teacher info, to get its id</param>
+	/// <param name="cancellationToken">Immediate cancelling the operation, once logout or so on.</param>
+	/// <param name="AsNoTracking">defualt as false, when changes need to be applied set as "true"</param>
+	/// <returns>Type: Cart Query, Teacher's cart that has not been order</returns>
 	public IQueryable<Cart> GetCartQueryAsync(
 		ClaimsPrincipal claimsPrincipal,
 		CancellationToken cancellationToken,
@@ -213,18 +233,18 @@ internal sealed class GetCartHandler(MyAppDbContext dbContext)
 		if (AsNoTracking) cartQuery = cartQuery.AsNoTracking();
 
 		return cartQuery.Include(c => c.CartProductList)
-										.ThenInclude(cpl => cpl.Product)
-										.Where(
-											c =>
-												c.CustomerId == id &&
-												!c.Ordered
-										);
+							.ThenInclude(cpl => cpl.Product)
+						.Where(
+							c =>
+								c.CustomerId == id &&
+								!c.Ordered
+						);
 	}
 }
 
 
 internal sealed class GetCartItemHandler(MyAppDbContext dbContext, IGetCart cartHandler)
-		: DataBaseService(dbContext), IGetCartItem
+	: DataBaseService(dbContext), IGetCartItem
 {
 	private readonly IGetCart _cartHandler = cartHandler;
 	/// <summary>
@@ -249,14 +269,7 @@ internal sealed class GetCartItemHandler(MyAppDbContext dbContext, IGetCart cart
 
 		if (cart is null) return null;
 
-		// Search cart item
-		IQueryable<CartItem> cartItemQuery = AsNoTracking ? dbContext.CartItems.AsNoTracking()
-																											: dbContext.CartItems;
-
-		return cartItemQuery.Where(
-									ci => ci.ProductId == productId &&
-									ci.CartId == cart.CartId
-								);
+		return ThatItemQuery(cart, productId, AsNoTracking);
 	}
 
 	public async Task<IQueryable<CartItem>?> GetCartItemQueryAsync(
@@ -274,13 +287,59 @@ internal sealed class GetCartItemHandler(MyAppDbContext dbContext, IGetCart cart
 
 		if (cart is null) return null;
 
+		return ThatItemQuery(cart, productId, AsNoTracking);
+	}
+
+	public async Task<List<CartItem>?> GetEntireList(
+		ClaimsPrincipal claimsPrincipal,
+		CancellationToken ct,
+		bool AsNoTracking = false
+	)
+	{
+		Cart? cart = await _cartHandler.GetCartQueryAsync(claimsPrincipal, ct, AsNoTracking)
+										.FirstOrDefaultAsync(ct);
+		if (cart is null) return null;
+
+		return await dbContext.CartItems.Include(ci => ci.Product)
+										.Where(ci => ci.CartId == cart.CartId)
+										.ToListAsync(ct);
+	}
+
+	public IQueryable<CartItem> ThatItemQuery(Cart cart, int productId, bool AsNoTracking = false)
+	{
 		IQueryable<CartItem> cartItemQuery = AsNoTracking ? dbContext.CartItems.AsNoTracking()
 															: dbContext.CartItems;
 
 		return cartItemQuery.Where(
-									ci => ci.ProductId == productId &&
-									ci.CartId == cart.CartId
-								);
+								ci => ci.ProductId == productId &&
+								ci.CartId == cart.CartId
+							);
 	}
 }
 
+internal sealed class CartHandler(IGetCartItem getCartItemHandler)
+{
+	private readonly IGetCartItem _getCartItemHandler = getCartItemHandler;
+	public async Task<int> RecomputeCartTotalPrice(
+		ClaimsPrincipal claimsPrincipal, CancellationToken ct
+	)
+	{
+		List<CartItem>? cartItems = await _getCartItemHandler.GetEntireList(claimsPrincipal, ct);
+
+		return Recompute(cartItems);
+	}
+
+	public int RecomputeCartTotalPrice(Cart cart) => Recompute(cart.CartProductList);
+
+	private int Recompute(ICollection<CartItem>? cartItems)
+	{
+		if (cartItems is null)
+			return 0;
+
+		var totalCost = 0;
+		foreach (var i in cartItems)
+			totalCost += i.Quantity * i.Product.PointCost;
+
+		return totalCost;
+	}
+}

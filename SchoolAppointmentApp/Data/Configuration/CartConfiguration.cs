@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SchoolAppointmentApp.Entities;
 
-namespace SchoolAppointmentApp.Data.Configurations;
+namespace SchoolAppointmentApp.Data.Configuration;
 
 public class CartConfiguration : IEntityTypeConfiguration<Cart>
 {

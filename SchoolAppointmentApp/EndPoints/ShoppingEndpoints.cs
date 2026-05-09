@@ -39,11 +39,13 @@ public static class Shopping
 			ClaimsPrincipal user,
 			IErrorResults errorHandler,
 			HttpContext hc,
-			UnAuthorizedValidator validator
+			UnAuthorizedValidator validator,
+			IGetCart getCartHandler,
+			CartHandler cartHandler
 		) =>
 		{
 			// Validation of user
-			(bool auth, Teacher? teacher) = await validator.IsResults<Teacher>(
+			(_, Teacher? teacher) = await validator.IsResults<Teacher>(
 				expectedRole: Roles.teacher,
 				user: user,
 				ct: ct
@@ -52,7 +54,7 @@ public static class Shopping
 			if (teacher is null)
 				return errorHandler.UnauthorizedResult(
 					title: "Reported fake user",
-					message: "Unautherized, user doesnt existed",
+					message: "Unauthorized, user doesn't existed",
 					hc: hc
 				);
 
@@ -63,7 +65,7 @@ public static class Shopping
 														);
 			if (product is null)
 				return errorHandler.NotFoundResult(
-						title: "I dont exist issue",
+						title: "I don't exist issue",
 						message: "Product doesn't exist",
 						hc: hc
 					);
@@ -76,12 +78,7 @@ public static class Shopping
 					);
 
 			// Check wether there is cart hasn't been ordered
-			Cart? teacherCart = await dbContext.Carts.Include(c => c.CartProductList)
-														.ThenInclude(c => c.Product)
-													.Where(
-														c => c.CustomerId == teacher.TeacherId
-														&& c.Ordered == false
-													)
+			Cart? teacherCart = await getCartHandler.GetCartQueryAsync(teacher, ct)
 													.FirstOrDefaultAsync(ct);
 
 			if (teacherCart is null)
@@ -130,11 +127,7 @@ public static class Shopping
 			}
 
 			// Recompute total cost
-			int totalCost = 0;
-			foreach (var item in teacherCart.CartProductList)
-				totalCost += item.Quantity * item.Product.PointCost;
-
-			teacherCart.TotalCost = totalCost;
+			teacherCart.TotalCost = cartHandler.RecomputeCartTotalPrice(teacherCart);
 
 			await dbContext.SaveChangesAsync(ct);
 			return Results.Created("Product is added to the cart", teacherCart.ToCartDto());

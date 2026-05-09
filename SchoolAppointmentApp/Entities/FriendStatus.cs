@@ -3,7 +3,6 @@ using SchoolAppointmentApp.Mapping;
 
 namespace SchoolAppointmentApp.Entities;
 
-[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum FriendRequestPossibleStatus { Accepted, Denied, Pending }
 public class FriendRequest : IRelation
 {

@@ -25,13 +25,11 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
         // Content || Audio || Image must have at least one
         builder.ToTable(t => t.HasCheckConstraint(
             "CheckMessageHasExactlyOneTypeOfContent", // Name
-                                                      // SQL script check content is null and less then 0 charaters
-
             @"(
-                    (CASE WHEN ""Content"" IS NOT NULL AND length(trim(""Content"")) > 0 THEN 1 ELSE 0 END) +
-                    (CASE WHEN ""AudioMessageRoot"" IS NOT NULL THEN 1 ELSE 0 END) +
-                    (CASE WHEN ""ImageMessageRoot"" IS NOT NULL THEN 1 ELSE 0 END)
-                ) = 1"
+                (CASE WHEN ""Content"" IS NOT NULL AND length(trim(""Content"")) > 0 THEN 1 ELSE 0 END) +
+                (CASE WHEN ""AudioMessageRoot"" IS NOT NULL THEN 1 ELSE 0 END) +
+                (CASE WHEN ""ImageMessageRoot"" IS NOT NULL THEN 1 ELSE 0 END)
+            ) = 1"
         ));
     }
 }

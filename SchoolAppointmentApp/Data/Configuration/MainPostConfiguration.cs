@@ -12,12 +12,7 @@ public class MainPostConfiguration : IEntityTypeConfiguration<MainPost>
 
         builder.HasOne(mp => mp.Student)
                 .WithMany()
-                .HasForeignKey(mps => mps.StudentId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasMany(mp => mp.Replies)
-                .WithOne()
-                .HasForeignKey(r => r.MainPostId)
+                .HasForeignKey(mp => mp.StudentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(mp => mp.Content)

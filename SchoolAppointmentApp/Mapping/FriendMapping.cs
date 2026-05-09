@@ -6,6 +6,7 @@ namespace SchoolAppointmentApp.Mapping;
 
 public interface IRelation
 {
+  int ReceiverId { get; set; }
   int InitiatorId { get; set; }
   User Initiator { get; set; }
   User Receiver { get; set; }

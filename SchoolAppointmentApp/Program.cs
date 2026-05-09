@@ -8,7 +8,6 @@ using SchoolAppointmentApp.DataTypeObject;
 using SchoolAppointmentApp.EndPoints;
 using SchoolAppointmentApp.Entities;
 using SchoolAppointmentApp.FunctionalClasses;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.FileProviders;
 using SchoolAppointmentApp.Registrations;
 using SchoolAppointmentApp.Mapping;
@@ -240,9 +239,9 @@ app.MapPost("/login", async (
             ); // No match
 
     var claims = new List<Claim> {
-            new (ClaimTypes.NameIdentifier, user.UserId.ToString()),
-            new (ClaimTypes.Role, Role.ToString()!),
-            new (ClaimTypes.Email, user.Email!)
+          new (ClaimTypes.NameIdentifier, user.UserId.ToString()),
+          new (ClaimTypes.Role, Role.ToString()!),
+          new (ClaimTypes.Email, user.Email!)
         };
 
     if (Role == Roles.student)

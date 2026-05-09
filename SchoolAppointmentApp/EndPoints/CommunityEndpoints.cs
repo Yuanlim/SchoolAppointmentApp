@@ -39,10 +39,10 @@ public static class Community
 
       if (!string.IsNullOrWhiteSpace(dto.SearchString))
         mainPostsQuery = mainPostsQuery.AsNoTracking()
-                                           .Where(
-                                                mp => EF.Functions.Like(mp.Content,
-                                                $"%{dto.SearchString}%")
-                                           );
+                                        .Where(
+                                            mp => EF.Functions.Like(mp.Content,
+                                            $"%{dto.SearchString}%")
+                                        );
 
       // defualt order by thumbs up
       mainPostsQuery = mainPostsQuery.Include(mp => mp.Replies)
@@ -68,6 +68,7 @@ public static class Community
       }
 
       mainPosts = await mainPostsQuery.Skip((dto.StepAmount - 1) * 5)
+                                      .Take(5)
                                       .ToListAsync(ct);
 
       return Results.Ok(mainPosts.ToMainPostListDto());

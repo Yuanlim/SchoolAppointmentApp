@@ -25,7 +25,7 @@ public static class MyCart
     ) =>
     {
       // Validation guard
-      (bool auth, Teacher? teacher) = await validator.IsResults<Teacher>(
+      (_, Teacher? teacher) = await validator.IsResults<Teacher>(
         expectedRole: Roles.teacher,
         user: user,
         ct: ct
@@ -34,7 +34,7 @@ public static class MyCart
       if (teacher is null)
         return errorHandler.UnauthorizedResult(
           title: "Reported fake user",
-          message: $"Unautherized, user doesnt existed",
+          message: $"Unauthorized, user doesn't existed",
           hc: hc
         );
 
@@ -62,12 +62,14 @@ public static class MyCart
       HttpContext hc,
       CancellationToken ct,
       UnAuthorizedValidator validator,
-      IGetCartItem cartItemHandler,
-      MyAppDbContext dbContext
+      IGetCart getCartHandler,
+      IGetCartItem getCartItemHandler,
+      MyAppDbContext dbContext,
+      CartHandler cartHandler
     ) =>
     {
       // Validation of user
-      (bool auth, Teacher? teacher) = await validator.IsResults<Teacher>(
+      (_, Teacher? teacher) = await validator.IsResults<Teacher>(
         expectedRole: Roles.teacher,
         user: user,
         ct: ct
@@ -76,18 +78,14 @@ public static class MyCart
       if (teacher is null)
         return errorHandler.UnauthorizedResult(
           title: "Reported fake user",
-          message: "Unautherized, user doesnt existed",
+          message: "Unauthorized, user doesn't existed",
           hc: hc
         );
 
-      // Find Cart as tracking
-      IQueryable<CartItem>? cartItemQuery = await cartItemHandler.GetCartItemQueryAsync(
-        teacher: teacher,
-        productId: productId,
-        cancellationToken: ct
-      );
+      Cart? cart = await getCartHandler.GetCartQueryAsync(user, ct)
+                                        .FirstOrDefaultAsync(ct);
 
-      if (cartItemQuery is null)
+      if (cart is null)
         return errorHandler.NotFoundResult(
           title: "Get request reported empty.",
           message: "Teacher has no unordered cart.",
@@ -95,7 +93,21 @@ public static class MyCart
           user: teacher.User
         );
 
-      await cartItemQuery.ExecuteDeleteAsync();
+      // Find CartItem and delete as tracking
+      CartItem? cartItem = await getCartItemHandler.ThatItemQuery(cart, productId)
+                                                    .FirstOrDefaultAsync(ct);
+
+      if (cartItem is null)
+        return errorHandler.NotFoundResult(
+          title: "Cart Error",
+          message: "Teacher has cart, but no this item.",
+          hc: hc
+        );
+
+      cart.CartProductList.Remove(cartItem);
+
+      // Recompute cart cost
+      cart.TotalCost = cartHandler.RecomputeCartTotalPrice(cart);
 
       await dbContext.SaveChangesAsync(ct);
 
@@ -116,7 +128,7 @@ public static class MyCart
       MyAppDbContext dbContext
     ) =>
     {
-      (bool auth, Teacher? teacher) = await validator.IsResults<Teacher>(
+      (_, Teacher? teacher) = await validator.IsResults<Teacher>(
         expectedRole: Roles.teacher,
         user: user,
         ct: ct
@@ -125,7 +137,7 @@ public static class MyCart
       if (teacher is null)
         return errorHandler.UnauthorizedResult(
           title: "Reported fake user",
-          message: "Unautherized, user doesnt existed",
+          message: "Unauthorized, user doesn't existed",
           hc: hc
         );
 

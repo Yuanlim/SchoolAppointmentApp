@@ -37,6 +37,6 @@ public record class ThumbsUpInfo
     public int? ReplyId { get; init; }
     public Reply? Reply { get; init; }
     public int UserId { get; init; }
-    public User User { get; init; } = null!;
+    public required User User { get; init; }
     public bool Thumbed { get; set; }
 };

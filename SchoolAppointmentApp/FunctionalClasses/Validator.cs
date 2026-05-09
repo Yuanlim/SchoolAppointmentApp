@@ -107,6 +107,19 @@ internal sealed class NullValidator : IProcessValidator
 public class UnAuthorizedValidator(MyAppDbContext dbContext)
     : DataBaseService(dbContext), IAuthorizedValidator
 {
+  /// <summary>
+  /// Check user is authorized or not, while getting his/him/her obj info. <br/>
+  /// <strong>Use case 1</strong>: I only want check authorized or not, just use the bool (bool auth, _) <br/>
+  /// <strong>Use case 2</strong>: I only want to make sure user exist in database, just use the expected obj (_, obj?) <br/>
+  ///             null means not authorized. <br/>
+  /// Rule: Don't rely on two because the casting is not safe. <b/>
+  /// </summary>
+  /// <typeparam name="R"></typeparam>
+  /// <param name="expectedRole"></param>
+  /// <param name="ct"></param>
+  /// <param name="user"></param>
+  /// <param name="id"></param>
+  /// <returns>(isAuth, ExpectedRole obj)</returns>
   public async Task<(bool, R?)> IsResults<R>(
     Roles expectedRole,
     CancellationToken ct,
@@ -117,25 +130,25 @@ public class UnAuthorizedValidator(MyAppDbContext dbContext)
     if (expectedRole == Roles.teacher)
     {
       Teacher? teacher = await IsTeacherResults(id: user?.FindFirstValue("TeacherId") ?? id, ct);
-      if (teacher is null) return (false, default);
-      return (true, typeof(R) == typeof(Teacher) ? (R)(object)teacher : default);
+      if (teacher is null) return (false, null);
+      return (true, typeof(R) == typeof(Teacher) ? (R)(object)teacher : null);
     }
 
     if (expectedRole == Roles.student)
     {
       Student? student = await IsStudentResults(id: user?.FindFirstValue("StudentId") ?? id, ct);
-      if (student is null) return (false, default);
-      return (true, typeof(R) == typeof(Student) ? (R)(object)student : default);
+      if (student is null) return (false, null);
+      return (true, typeof(R) == typeof(Student) ? (R)(object)student : null);
     }
 
     if (expectedRole == Roles.schoolPrincipal)
     {
       SchoolPrincipal? sp = await IsPrincipalResults(id: user?.FindFirstValue(ClaimTypes.NameIdentifier) ?? id, ct);
-      if (sp is null) return (false, default);
-      return (true, typeof(R) == typeof(SchoolPrincipal) ? (R)(object)sp : default);
+      if (sp is null) return (false, null);
+      return (true, typeof(R) == typeof(SchoolPrincipal) ? (R)(object)sp : null);
     }
 
-    return (false, default);
+    return (false, null);
   }
 
   private async Task<Teacher?> IsTeacherResults(string? id, CancellationToken ct)

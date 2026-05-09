@@ -52,7 +52,7 @@ public static class Products
       await dbContext.AddAsync(product, ct);
       await dbContext.SaveChangesAsync(ct);
 
-      return Results.Created($"/Product/{dto.ProductName}", dto.ProductName);
+      return Results.Created($"/Product/{product.ProductId}", product);
     }).RequireAuthorization("PrincipalAllowed");
 
     group.MapPatch("/Change", async (
@@ -77,7 +77,7 @@ public static class Products
       if (!auth)
         return errorHandler.UnauthorizedResult(
           title: "Reported fake user",
-          message: $"Unautherized, user doesnt existed",
+          message: $"Unauthorized, user doesn't existed",
           hc: hc
         );
 
@@ -92,7 +92,7 @@ public static class Products
 
       await dbContext.SaveChangesAsync(ct);
 
-      return Results.Ok($"Product id {theProduct.ProductId} propreties Changed");
+      return Results.Ok($"Product id {theProduct.ProductId} properties Changed");
     }).RequireAuthorization("PrincipalAllowed");
 
     group.MapDelete("/Remove/{productId}", async (
@@ -117,14 +117,21 @@ public static class Products
       if (!auth)
         return errorHandler.UnauthorizedResult(
           title: "Reported fake user",
-          message: $"Unautherized, user doesnt existed",
+          message: $"Unauthorized, user doesn't existed",
           hc: hc
         );
 
-      await dbContext.Products.Where(p => p.ProductId == productId)
-                              .ExecuteDeleteAsync(ct);
+      int row = await dbContext.Products.Where(p => p.ProductId == productId)
+                                        .ExecuteDeleteAsync(ct);
 
-      await dbContext.SaveChangesAsync();
+      if (row == 0)
+        return errorHandler.NotFoundResult(
+          title: "Product Error",
+          message: $"No such product, in id {productId}",
+          hc: hc
+        );
+
+      await dbContext.SaveChangesAsync(ct);
 
       return Results.NoContent();
     }).RequireAuthorization("PrincipalAllowed");
@@ -154,7 +161,7 @@ public static class Products
       if (!isTeacher && !isPrincipal)
         return errorHandler.UnauthorizedResult(
           title: "Reported fake user",
-          message: $"Unautherized, user doesnt existed",
+          message: $"Unauthorized, user doesn't existed",
           hc: hc
         );
 
@@ -169,7 +176,7 @@ public static class Products
       return Results.Ok(product.ToProductDto());
     }).RequireAuthorization("TeacherOrPrincipalAllowed");
 
-    group.MapGet("/GetList/{SearchString}&{RequestExpandTimes}", async (
+    group.MapGet("/GetList/", async (
       string? SearchString,
       int RequestExpandTimes,
       CancellationToken ct,
@@ -185,23 +192,26 @@ public static class Products
       // if (string.IsNullOrWhiteSpace(searchString)) return Results.NoContent();
 
       // Validation of user
-      (bool auth, _) = await validator.IsResults<Teacher>
-      (
+      (bool isTea, _) = await validator.IsResults<Teacher>(
         expectedRole: Roles.teacher,
         user: user,
         ct: ct
       );
 
-      if (!auth)
-        return errorHandler.UnauthorizedResult
-        (
+      (bool isSp, _) = await validator.IsResults<SchoolPrincipal>(
+        expectedRole: Roles.schoolPrincipal,
+        user: user,
+        ct: ct
+      );
+
+      if (!isSp && !isTea)
+        return errorHandler.UnauthorizedResult(
           title: "Reported fake user",
-          message: "Unautherized, user doesnt existed",
+          message: "Unauthorized, user doesn't existed",
           hc: hc
         );
 
-      var productList = await GetProductHandler.GetProductList
-      (
+      var productList = await GetProductHandler.GetProductList(
         searchString: SearchString,
         limitStep: RequestExpandTimes,
         maximumProductListedEachExpand: 5,
@@ -210,6 +220,44 @@ public static class Products
 
       return Results.Ok(productList);
     }).RequireAuthorization("TeacherOrPrincipalAllowed");
+
+    group.MapPost("/New/in/List", async (
+      ICollection<CreateProductDto> dto,
+      UnAuthorizedValidator validator,
+      CancellationToken ct,
+      ClaimsPrincipal user,
+      IErrorResults errorHandler,
+      HttpContext hc,
+      MyAppDbContext dbContext
+    ) =>
+    {
+      (bool isSp, _) = await validator.IsResults<SchoolPrincipal>(Roles.schoolPrincipal, ct, user);
+
+      if (!isSp)
+        return errorHandler.UnauthorizedResult(
+          title: "Reported fake user",
+          message: $"Unauthorized, user doesn't existed",
+          hc: hc
+        );
+
+      ICollection<Product> products = [];
+      foreach (var p in dto)
+      {
+        products.Add(new()
+        {
+          ProductName = p.ProductName,
+          ProductImageRoot = p.ProductImageRoot,
+          Description = p.Description,
+          AvailableQuantity = p.Quantity,
+          PointCost = p.PointCost
+        });
+      }
+
+      await dbContext.AddRangeAsync(products);
+      await dbContext.SaveChangesAsync();
+
+      return Results.Created("", products);
+    }).RequireAuthorization("PrincipalAllowed");
 
     return group;
   }

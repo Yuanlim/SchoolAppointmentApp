@@ -13,7 +13,7 @@ public class FriendRequestConfiguration : IEntityTypeConfiguration<FriendRequest
         builder.HasIndex(fr => new { fr.ReceiverId, fr.InitiatorId });
 
         builder.HasOne(fr => fr.Receiver)
-                .WithMany() // Receiver possibilly has many friend request
+                .WithMany() // Receiver possibly has many friend request
                 .HasForeignKey(fr => fr.ReceiverId) // FK keys of FriendStatus Receiver id
                 .IsRequired();
 

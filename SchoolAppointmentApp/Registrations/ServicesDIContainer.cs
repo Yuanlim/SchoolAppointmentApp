@@ -25,6 +25,7 @@ internal static class ServicesDIContainer
         builder.Services.AddScoped<UnAuthorizedValidator>();
         builder.Services.AddScoped<RegisterStartPolicies>();
         builder.Services.AddScoped<NullValidator>();
+        builder.Services.AddTransient<CartHandler>();
         builder.Services.AddTransient<EmailValidator>();
         builder.Services.AddTransient<NameValidator>();
         builder.Services.AddTransient<RoleValidator>();

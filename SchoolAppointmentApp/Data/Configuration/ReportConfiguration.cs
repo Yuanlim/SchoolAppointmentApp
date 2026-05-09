@@ -13,15 +13,13 @@ public class ReportConfiguration : IEntityTypeConfiguration<Report>
         builder.HasIndex(r => new { r.ReceiverId, r.InitiatorId });
 
         builder.HasOne(r => r.Receiver)
-                .WithMany() // Receiver possibilly has many Report request
+                .WithMany() // Receiver possibly has many Report request
                 .HasForeignKey(r => r.ReceiverId)
-                .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(r => r.Initiator)
                 .WithMany()
                 .HasForeignKey(r => r.InitiatorId)
-                .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -34,7 +34,7 @@ public static class MyOrder
       if (teacher is null)
         return errorHandler.UnauthorizedResult(
           title: "Reported fake user",
-          message: $"Unautherized, user doesnt existed",
+          message: $"Unauthorized, user doesn't existed",
           hc: hc
         );
 
@@ -50,7 +50,7 @@ public static class MyOrder
       if (cartInfo is null)
         return errorHandler.NotFoundResult(
             title: "Doesn't exist",
-            message: "You have no unorder cart.",
+            message: "You have no un-order cart.",
             hc: hc,
             user: teacher.User
           );
