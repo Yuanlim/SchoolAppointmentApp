@@ -146,7 +146,7 @@ internal sealed class OrderItemListClasses(MyAppDbContext dbContext)
 	{
 		OrderItem? teacherOrderItem =
 				await dbContext.OrderItems.Where(
-													oi => oi.Order.OrderId == orderId
+												oi => oi.Order.OrderId == orderId
 												&& oi.ProductId == productId
 											)
 											.Include(oi => oi.Order)

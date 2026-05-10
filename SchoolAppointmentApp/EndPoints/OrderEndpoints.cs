@@ -50,17 +50,15 @@ public static class MyOrder
       if (cartInfo is null)
         return errorHandler.NotFoundResult(
             title: "Doesn't exist",
-            message: "You have no un-order cart.",
+            message: "You have no unordered cart.",
             hc: hc,
             user: teacher.User
           );
 
       // Insufficient points detection Or
       // Insufficient Quantity(Wished, has quantity but order too slow, other user got it.)
-      int total = 0;
       foreach (var item in cartInfo.CartProductList)
       {
-        total += item.Quantity * item.Product.PointCost;
         if (item.Product.AvailableQuantity < item.Quantity)
           return errorHandler.BadReqResult(
             title: "Quantity issue",
@@ -70,7 +68,7 @@ public static class MyOrder
           );
         item.Product.AvailableQuantity -= item.Quantity;
       }
-      if (total > teacher.Points)
+      if (cartInfo.TotalCost > teacher.Points)
         return errorHandler.BadReqResult(
             title: "Points issue",
             message: "Product is sufficient but user did not have enough points.",
@@ -78,7 +76,7 @@ public static class MyOrder
             user: teacher.User
           );
 
-      teacher.Points -= total;
+      teacher.Points -= cartInfo.TotalCost;
 
       // Get id 1 orderstatus type(pending)
       int pendingOrderStatusId = await statusHandler.GetOrderStatus(OrderPossibleStatus.pending, ct);
@@ -104,12 +102,12 @@ public static class MyOrder
         CustomerId = teacher.TeacherId,
         // When an order is placed it is always pending status
         StatusId = pendingOrderStatusId,
-        OrderItems = [.. cartInfo.CartProductList.Select(ci => new OrderItem
+        OrderItems = cartInfo.CartProductList.Select(ci => new OrderItem
         {
           ProductId = ci.ProductId,
           Quantity = ci.Quantity,
           StatusId = pendingOrderItemStatusId
-        })],
+        }).ToList(),
         TotalCost = cartInfo.TotalCost
       };
 
@@ -118,7 +116,7 @@ public static class MyOrder
       await dbContext.Orders.AddAsync(newOrder, ct);
       await dbContext.SaveChangesAsync(ct);
 
-      return Results.Created($"/Order/Placed/{newOrder.OrderId}", newOrder.OrderId);
+      return Results.Created($"/Order/Placed/{newOrder.OrderId}", $"Ordered {newOrder.OrderItems}");
     }).RequireAuthorization("TeacherAllowed");
 
     // I request what I order.
@@ -146,11 +144,11 @@ public static class MyOrder
         );
 
       var items = await orderListHandler.GetOrderItemList(user, ct);
-      return Results.Ok(orderListHandler is null ? [] : items.ToOrderListDto());
+      return Results.Ok(items.ToOrderListDto());
     }).RequireAuthorization("TeacherAllowed");
 
     // I request cancelling an order "item"
-    group.MapPost("/Cancel/{productId}&{orderId}", async (
+    group.MapPost("/Cancel", async (
         int productId,
         int orderId,
         ClaimsPrincipal user,
@@ -175,15 +173,15 @@ public static class MyOrder
       if (teacher is null)
         return errorHandler.UnauthorizedResult(
           title: "Reported fake user",
-          message: $"Unautherized, user doesnt existed",
+          message: $"Unauthorized, user doesn't existed",
           hc: hc
         );
 
       OrderItem? theItem = await orderListHandler.GetSpecificOrderItem(productId, orderId, ct);
       if (theItem is null)
         return errorHandler.NotFoundResult(
-            title: "Doesnt exist issue",
-            message: "No such item in your order",
+            title: "Doesn't exist issue",
+            message: "No such item in your order / order doesn't existed",
             hc: hc,
             user: teacher.User
           );
@@ -200,6 +198,7 @@ public static class MyOrder
       theItem.StatusId = orderItemStatusId;
 
       int itemCost = theItem.Quantity * theItem.Product.PointCost;
+
       // Reduce totalCost of teachers order
       theItem.Order.TotalCost -= itemCost;
 
@@ -213,8 +212,9 @@ public static class MyOrder
       var allCancelled = theItem.Order.OrderItems.All(oi => oi.StatusId == orderItemStatusId);
 
       // Status Update
-      int orderStatusId = allCancelled ? await statusHandler.GetOrderStatus(OrderPossibleStatus.cancelled, ct)
-                                    : await statusHandler.GetOrderStatus(OrderPossibleStatus.mix, ct);
+      int orderStatusId = allCancelled
+                          ? await statusHandler.GetOrderStatus(OrderPossibleStatus.cancelled, ct)
+                          : await statusHandler.GetOrderStatus(OrderPossibleStatus.mix, ct);
 
       if (orderStatusId == 0)
         return errorHandler.ProblemResult(
@@ -233,7 +233,7 @@ public static class MyOrder
       );
     }).RequireAuthorization("TeacherAllowed");
 
-    // When received, school principle change state.
+    // When received, school principal change state.
     group.MapPatch("/Received", async (
         CancellationToken ct,
         ClaimsPrincipal user,
@@ -255,7 +255,7 @@ public static class MyOrder
       if (schoolPrincipal is null)
         return errorHandler.UnauthorizedResult(
           title: "Reported fake user",
-          message: $"Unautherized, user doesnt existed",
+          message: $"Unauthorized, user doesn't existed",
           hc: hc
         );
 
@@ -274,7 +274,7 @@ public static class MyOrder
           hc: hc
         );
 
-      // Get teacher propreties
+      // Get teacher properties
       string customerId = teacherOrder.CustomerId;
 
       // Update
@@ -375,6 +375,7 @@ public static class MyOrder
         UnAuthorizedValidator validator
     ) =>
     {
+      System.Console.WriteLine(customerId);
       var id = user.FindFirstValue(ClaimTypes.NameIdentifier);
 
       // Validation of user
@@ -392,20 +393,20 @@ public static class MyOrder
         );
 
       ICollection<Order> orderList = await dbContext.Orders.AsNoTracking()
-                                                            .Where(o => o.CustomerId == id)
                                                             .Include(o => o.OrderStatus)
                                                             .Include(o => o.OrderItems)
                                                               .ThenInclude(oi => oi.Product)
                                                             .Include(o => o.OrderItems)
                                                               .ThenInclude(oi => oi.OrderItemStatus)
+                                                            .Where(o => o.CustomerId == customerId)
                                                             .ToListAsync(ct);
 
-      if (orderList is null)
+      if (orderList.Count == 0)
         return errorHandler.NotFoundResult(
-              title: "Doesn't exists",
-              message: "Customer id didnt exist or Customer didnt order anything before",
-              hc: hc
-            );
+                title: "Doesn't exists",
+                message: "Customer id didn't exist or Customer didn't order anything before",
+                hc: hc
+              );
 
       return Results.Ok(orderList.ToOrderDtos());
     }).RequireAuthorization("PrincipalAllowed");

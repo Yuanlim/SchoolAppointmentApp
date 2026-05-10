@@ -17,13 +17,12 @@ internal static class Authenticate
     /// <param name="builder"></param>
     public static void AddAuthentication(this WebApplicationBuilder builder)
     {
-        builder.Services.AddAuthentication()
+        builder.Services.AddAuthentication("Cookie")
                 .AddCookie("Cookie", c =>
                 {
                     // set behavior on when user not logged in but access some endpoint
                     c.Events.OnRedirectToLogin = context =>
                     {
-                        context.RedirectUri = "/login"; // Redirect page
                         context.Response.StatusCode = 401; // Unauthorized
                         return Task.CompletedTask;
                     };

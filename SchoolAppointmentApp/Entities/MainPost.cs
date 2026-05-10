@@ -2,14 +2,14 @@ namespace SchoolAppointmentApp.Entities;
 
 using SchoolAppointmentApp.FunctionalClasses;
 
-public record class MainPost
+public class MainPost
 {
     public int MainPostId { get; init; }
     public string StudentId { get; init; } = null!;
     public Student Student { get; init; } = null!;
     public string Content { get; set; } = null!;
     public ICollection<Reply> Replies { get; set; } = [];
-    public DateTime PostDateTime { get; set; }
+    public DateTime PostDateTime { get; set; } = DateTime.UtcNow;
     public ICollection<ThumbsUpInfo> ThumbsUpInfos { get; set; } = [];
     public int NumOfThumbsUp { get; set; }
 }

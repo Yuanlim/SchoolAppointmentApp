@@ -25,7 +25,7 @@ public static class Points
     ) =>
     {
       // Validation of user
-      (bool auth, Teacher? teacher) = await validator.IsResults<Teacher>(
+      (_, Teacher? teacher) = await validator.IsResults<Teacher>(
         expectedRole: Roles.teacher,
         user: user,
         ct: ct
@@ -34,7 +34,7 @@ public static class Points
       if (teacher is null)
         return errorHandler.UnauthorizedResult(
           title: "Reported fake user",
-          message: $"Unautherized, user doesnt existed",
+          message: $"Unauthorized, user doesn't existed",
           hc: hc
         );
 
@@ -52,15 +52,13 @@ public static class Points
 
       // To return shopping initial dto
       var shoppingInitial = new PointsDto(
-        // Products: productList,
         Points: aboutPoints.Points,
         TodaysEarning: aboutPoints.TodaysEarning
       );
 
       return Results.Ok(shoppingInitial);
 
-    }).Produces<PointsDto>()
-      .RequireAuthorization("TeacherAllowed");
+    }).RequireAuthorization("TeacherAllowed");
 
     return group;
   }

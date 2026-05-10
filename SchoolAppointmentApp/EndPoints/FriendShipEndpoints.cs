@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 using SchoolAppointmentApp.Data;
 using SchoolAppointmentApp.DataTypeObject;
 using SchoolAppointmentApp.Entities;
@@ -118,8 +117,7 @@ public static class FriendShip
       if (userRequestStatus!.FriendRequestPossibleStatus == FriendRequestPossibleStatus.Denied)
         return Results.Ok("You denied the request.");
       return Results.Ok("Friend request sended");
-    }).RequireAuthorization("StudentAllowed")
-      .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+    }).RequireAuthorization("StudentAllowed");
 
     group.MapGet("/GetWithStatus", async (
       [AsParameters] GetWithStatusDto dto,
@@ -159,8 +157,7 @@ public static class FriendShip
       );
 
       return Results.Ok(MeetStatusList.ToFriendListDto(ThisUser));
-    }).RequireAuthorization("TeacherOrStudentAllowed")
-      .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+    }).RequireAuthorization("TeacherOrStudentAllowed");
 
     group.MapGet("/GetBlock", async (
       MyAppDbContext dbContext,
@@ -187,11 +184,10 @@ public static class FriendShip
       ICollection<Block> blocks = await blockHandler.GetUserBlockedAsync(user: ThisUser!, ct: ct);
 
       return Results.Ok(blocks.ToFriendListDto(ThisUser!));
-    }).RequireAuthorization("TeacherOrStudentAllowed")
-      .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+    }).RequireAuthorization("TeacherOrStudentAllowed");
 
     group.MapGet("/FindFriend", async (
-      [AsParameters] FindFriendDto dto,
+      string id,
       ClaimsPrincipal user,
       IGetUser userHandler,
       CancellationToken ct,
@@ -209,7 +205,7 @@ public static class FriendShip
           hc: hc
         );
 
-      (User? user1, result) = await userHandler.GetUser(dto.Id, ct);
+      (User? user1, result) = await userHandler.GetUser(id, ct);
       if (user1 is null)
         return errorHandler.BadReqResult(
           title: result!.Title,
@@ -218,10 +214,9 @@ public static class FriendShip
           user: ThisUser
         );
 
-      return Results.Ok(user1.ToGetPersonDto(dto.Id));
+      return Results.Ok(user1.ToGetPersonDto(id));
 
-    }).RequireAuthorization("TeacherOrStudentAllowed")
-      .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+    }).RequireAuthorization("TeacherOrStudentAllowed");
 
     return group;
   }

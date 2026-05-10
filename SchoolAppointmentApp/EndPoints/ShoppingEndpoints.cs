@@ -15,21 +15,13 @@ public static class Shopping
 	{
 		var group = app.MapGroup("/Shopping");
 
-		group.PointsEndpoints()
-			.RequireAuthorization()
-			.RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+		group.PointsEndpoints();
 
-		group.CartEndpoints()
-			.RequireAuthorization()
-			.RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+		group.CartEndpoints().RequireAuthorization("TeacherAllowed");
 
-		group.OrderEndpoints()
-			.RequireAuthorization()
-			.RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+		group.OrderEndpoints();
 
-		group.ProductEndpoints()
-			.RequireAuthorization()
-			.RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+		group.ProductEndpoints();
 
 		// I put something in my cart endpoint
 		group.MapPost("/WishList", async (
@@ -131,8 +123,7 @@ public static class Shopping
 
 			await dbContext.SaveChangesAsync(ct);
 			return Results.Created("Product is added to the cart", teacherCart.ToCartDto());
-		}).RequireAuthorization("TeacherAllowed")
-			.RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+		}).RequireAuthorization("TeacherAllowed");
 
 		return group;
 	}

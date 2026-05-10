@@ -50,8 +50,7 @@ public static class MyCart
                                         .FirstOrDefaultAsync(ct);
 
       return Results.Ok(cart.ToCartDto());
-
-    }).RequireAuthorization("TeacherAllowed");
+    });
 
 
     // I delete something from cart
@@ -112,7 +111,7 @@ public static class MyCart
       await dbContext.SaveChangesAsync(ct);
 
       return Results.NoContent();
-    }).RequireAuthorization("TeacherAllowed");
+    });
 
 
     // I change quantity
@@ -190,7 +189,7 @@ public static class MyCart
       cart.TotalCost = cartHandler.RecomputeCartTotalPrice(cart);
       await dbContext.SaveChangesAsync(ct);
       return Results.Ok(cartItem.ToCartItemDto());
-    }).RequireAuthorization("TeacherAllowed");
+    });
 
     return group;
   }

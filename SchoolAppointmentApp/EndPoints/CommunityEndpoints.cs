@@ -16,7 +16,10 @@ public static class Community
     var group = app.MapGroup("/Community");
 
     group.MapGet("/GetMainDiscussion", async (
-        [AsParameters] GetMainPostDto dto,
+        int stepAmount,
+        string orderBy,
+        OrderingTypes ordering,
+        string? searchString,
         ClaimsPrincipal user,
         IGetUser userHandler,
         IErrorResults errorHandler,
@@ -37,11 +40,11 @@ public static class Community
       IQueryable<MainPost> mainPostsQuery = dbContext.MainPosts;
       ICollection<MainPost> mainPosts = [];
 
-      if (!string.IsNullOrWhiteSpace(dto.SearchString))
+      if (!string.IsNullOrWhiteSpace(searchString))
         mainPostsQuery = mainPostsQuery.AsNoTracking()
                                         .Where(
                                             mp => EF.Functions.Like(mp.Content,
-                                            $"%{dto.SearchString}%")
+                                            $"%{searchString}%")
                                         );
 
       // defualt order by thumbs up
@@ -54,30 +57,29 @@ public static class Community
                                      .Include(mp => mp.Student)
                                       .ThenInclude(s => s.User);
 
-      if (dto.OrderBy == "Date")
+      if (orderBy == "Date")
       {
-        mainPostsQuery = dto.Ordering == OrderingTypes.asc ?
-                                          mainPostsQuery.OrderBy(mp => mp.PostDateTime) :
-                                          mainPostsQuery.OrderByDescending(mp => mp.PostDateTime);
+        mainPostsQuery = ordering == OrderingTypes.asc ?
+                                      mainPostsQuery.OrderBy(mp => mp.PostDateTime) :
+                                      mainPostsQuery.OrderByDescending(mp => mp.PostDateTime);
       }
       else
       {
-        mainPostsQuery = dto.Ordering == OrderingTypes.asc ?
-                                          mainPostsQuery.OrderBy(mp => mp.NumOfThumbsUp) :
-                                          mainPostsQuery.OrderByDescending(mp => mp.NumOfThumbsUp);
+        mainPostsQuery = ordering == OrderingTypes.asc ?
+                                      mainPostsQuery.OrderBy(mp => mp.NumOfThumbsUp) :
+                                      mainPostsQuery.OrderByDescending(mp => mp.NumOfThumbsUp);
       }
 
-      mainPosts = await mainPostsQuery.Skip((dto.StepAmount - 1) * 5)
+      mainPosts = await mainPostsQuery.Skip((stepAmount - 1) * 5)
                                       .Take(5)
                                       .ToListAsync(ct);
 
       return Results.Ok(mainPosts.ToMainPostListDto());
 
-    }).RequireAuthorization("TeacherOrStudentAllowed")
-      .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+    }).RequireAuthorization("TeacherOrStudentAllowed");
 
     // I Post Something in the community for discussion.
-    group.MapPost("/MainPost/Post", async (
+    group.MapPost("/Post", async (
         PostMainPostDto dto,
         ClaimsPrincipal user,
         CancellationToken ct,
@@ -119,7 +121,6 @@ public static class Community
         Student = user1.Student!,
         Content = dto.Content,
         Replies = [],
-        PostDateTime = DateTime.Now,
         ThumbsUpInfos = [],
         NumOfThumbsUp = 0
       };
@@ -127,11 +128,10 @@ public static class Community
       await dbContext.MainPosts.AddAsync(mainPost, ct);
       await dbContext.SaveChangesAsync(ct);
 
-      return Results.Created("New MainPost is created", null);
-    }).RequireAuthorization("StudentAllowed")
-      .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+      return Results.Created("New MainPost is created", mainPost.ToMainPostDto());
+    }).RequireAuthorization("StudentAllowed");
 
-    group.MapPost("/ReplyPost/Post", async (
+    group.MapPost("/Reply", async (
         ReplyMainPostDto dto,
         ClaimsPrincipal user,
         CancellationToken ct,
@@ -166,7 +166,7 @@ public static class Community
 
       Roles role = user.IsInRole("teacher") ? Roles.teacher : Roles.student;
 
-      var theMainPost = await dbContext.MainPosts.FirstOrDefaultAsync(
+      var theMainPost = await dbContext.MainPosts.SingleOrDefaultAsync(
               mp => mp.MainPostId == dto.RepliedMainPostId, ct
           );
       if (theMainPost is null)
@@ -194,10 +194,9 @@ public static class Community
       await dbContext.SaveChangesAsync(ct);
 
       return Results.Ok();
-    }).RequireAuthorization("TeacherOrStudentAllowed")
-      .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+    }).RequireAuthorization("TeacherOrStudentAllowed");
 
-    group.MapPost("/ThumbsUp/MainPost/", async (
+    group.MapPost("/ThumbsUp", async (
         ThumbsUpDto dto,
         ClaimsPrincipal user,
         CancellationToken ct,
@@ -235,7 +234,7 @@ public static class Community
             user: User
           );
 
-        pastThumbsUpInfo = mainPost!.ThumbsUpInfos.FirstOrDefault(tui => tui.UserId == User.UserId)!;
+        pastThumbsUpInfo = mainPost.ThumbsUpInfos.FirstOrDefault(tui => tui.UserId == User.UserId)!;
 
         if (pastThumbsUpInfo is null)
         {
@@ -251,7 +250,7 @@ public static class Community
           mainPost.NumOfThumbsUp += 1;
 
           await dbContext.SaveChangesAsync(ct);
-          return Results.Ok($"You Tumbed up UserName:{User.Name} main post.");
+          return Results.Ok($"You Thumbed up UserName:{User.Name} main post.");
         }
 
         pastThumbsUpInfo.Thumbed = !pastThumbsUpInfo.Thumbed;
@@ -289,7 +288,7 @@ public static class Community
           reply.NumOfThumbsUp += 1;
 
           await dbContext.SaveChangesAsync(ct);
-          return Results.Ok($"You Tumbed up UserName:{User.Name} reply post.");
+          return Results.Ok($"You Thumbed up UserName:{User.Name} reply post.");
         }
 
         pastThumbsUpInfo.Thumbed = !pastThumbsUpInfo.Thumbed;
@@ -302,8 +301,7 @@ public static class Community
       else
         return Results.BadRequest("Must provided at least one id: ReplyId or MainId");
 
-    }).RequireAuthorization("StudentAllowed")
-      .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Cookie" });
+    }).RequireAuthorization("StudentAllowed");
 
     return group;
   }
