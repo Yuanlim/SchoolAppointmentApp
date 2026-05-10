@@ -11,10 +11,6 @@ public class AdminConfiguration : IEntityTypeConfiguration<Admin>
         // HasKey: set up PK
         builder.HasKey(a => a.AdminId);
 
-        builder.Property(x => x.Contact)
-                .IsRequired()
-                .HasMaxLength(100);
-
         // builder.Property set property of data field 
         // in here is set to required field
         builder.Property(a => a.PasswordHash).IsRequired();
