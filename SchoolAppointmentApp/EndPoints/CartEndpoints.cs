@@ -123,9 +123,11 @@ public static class MyCart
       HttpContext hc,
       CancellationToken ct,
       UnAuthorizedValidator validator,
-      IGetCartItem cartItemHandler,
+      IGetCart getCartHandler,
+      IGetCartItem getCartItemHandler,
       IProductListClasses productHandler,
-      MyAppDbContext dbContext
+      MyAppDbContext dbContext,
+      CartHandler cartHandler
     ) =>
     {
       (_, Teacher? teacher) = await validator.IsResults<Teacher>(
@@ -157,13 +159,9 @@ public static class MyCart
           user: teacher.User
         );
 
-      // Find Cart as tracking
-      IQueryable<CartItem>? cartItemQuery = await cartItemHandler.GetCartItemQueryAsync(
-        teacher: teacher,
-        productId: dto.ProductId,
-        cancellationToken: ct
-      );
-      if (cartItemQuery is null)
+      // Find cart
+      Cart? cart = await getCartHandler.GetCartQueryAsync(user, ct).FirstOrDefaultAsync();
+      if (cart is null)
         return errorHandler.NotFoundResult(
           title: "Get request reported empty.",
           message: "Teacher has no unordered cart.",
@@ -171,28 +169,27 @@ public static class MyCart
           user: teacher.User
         );
 
+      // Find CartItem as tracking
+      CartItem? cartItem = await getCartItemHandler.ThatItemQuery(
+        cart, dto.ProductId
+      ).FirstOrDefaultAsync(ct);
+      if (cartItem is null)
+        return errorHandler.NotFoundResult(
+          title: "Cart delete error",
+          message: "The cart doesn't have that item",
+          hc: hc,
+          user: teacher.User
+        );
+
       // Treat 0 as delete
       if (dto.Quantity == 0)
-      {
-        await cartItemQuery.ExecuteDeleteAsync(ct);
-        return Results.NoContent();
-      }
+        cart.CartProductList.Remove(cartItem);
       else
-      {
-        CartItem? cartItem = await cartItemQuery.FirstOrDefaultAsync(ct);
-
-        if (cartItem is null)
-          return errorHandler.NotFoundResult(
-            title: "Get request reported empty.",
-            message: "Teacher has no such item in cart.",
-            hc: hc,
-            user: teacher.User
-          );
-
         cartItem.Quantity = dto.Quantity;
-        await dbContext.SaveChangesAsync(ct);
-        return Results.Ok(cartItem.ToCartItemDto());
-      }
+
+      cart.TotalCost = cartHandler.RecomputeCartTotalPrice(cart);
+      await dbContext.SaveChangesAsync(ct);
+      return Results.Ok(cartItem.ToCartItemDto());
     }).RequireAuthorization("TeacherAllowed");
 
     return group;
